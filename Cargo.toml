@@ -5,3 +5,8 @@ authors = ["Flavius Aspra <flavius.as@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+
+[[bin]]
+name = "rust-ddd"
+path = "src/main.rs"
+test = false

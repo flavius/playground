@@ -17,3 +17,5 @@ pub trait Plugin {
         Self::specification().name()
     }
 }
+
+//TODO: auto impl of Debug for Specification and Plugin

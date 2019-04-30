@@ -22,8 +22,8 @@ impl plugin::Specification for Specification {
     fn dependencies(&self) -> Vec<std::any::TypeId> {
         vec![
             std::any::TypeId::of::<logging::Plugin>(),
-            std::any::TypeId::of::<projector::Plugin>(),
             std::any::TypeId::of::<appendlog::Plugin>(),
+            std::any::TypeId::of::<projector::Plugin>(),
         ]
     }
 }
