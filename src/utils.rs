@@ -190,7 +190,10 @@ impl fmt::Debug for DependencyGraph {
     }
 }
 
-pub fn sort_specifications(specs: Vec<&plugin::Specification>) -> Option<Vec<&plugin::Specification>> {
+pub fn sort_specifications(mut specs: Vec<Box<dyn plugin::Specification>>) -> Option<Vec<Box<dyn plugin::Specification>>> {
+    if specs.len() < 2 {
+        return Some(specs);
+    }
     let mut type_to_index = HashMap::new();
     for (idx, spec) in specs.iter().enumerate() {
         type_to_index.insert(spec.id(), idx);
@@ -202,26 +205,25 @@ pub fn sort_specifications(specs: Vec<&plugin::Specification>) -> Option<Vec<&pl
     };
     for (idx, spec) in specs.iter().enumerate() {
         let deps : Vec<usize> = vec![];
-        //println!("plugin {} {}", spec.name(), idx);
-        //println!("G: {:?}", graph);
         for dep in spec.dependencies() {
-            //println!("DEP: {}", type_to_index[&dep]);
             if !graph.add_dependency(idx, type_to_index[&dep]) {
                 return None
             }
-            //println!("after dep from {} to {} G: {:?}", idx, type_to_index[&dep], graph);
         }
     }
     let mut init_ids = graph.topologically_sorted();
     init_ids.reverse();
     let mut sorted = vec![];
-    for idx in init_ids {
-        sorted.push(specs[idx]);
+    for (i, idx) in init_ids.iter().take(specs.len()-1).enumerate() {
+        sorted.push((i, idx));
     }
-    Some(sorted)
+    for op in sorted {
+        specs.swap(op.0, *op.1);
+    }
+    Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<&plugin::Specification>) -> Vec<Box<plugin::Plugin>> {
+pub fn initialize_plugins(specs: Vec<&plugin::Specification>) -> Vec<Box<dyn plugin::Plugin>> {
     let mut plugins = vec![];
     plugins
 }

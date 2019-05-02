@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use crate::plugin;
 use crate::logging;
 
@@ -8,19 +10,18 @@ pub struct Specification {
 }
 
 impl plugin::Plugin for Plugin {
-    type Specification = Specification;
-    fn new(deps: Self::Specification) -> Self {
-        Plugin {
-        }
+    fn new(deps: Box<dyn plugin::Specification>) -> Option<Self> {
+        Some(Plugin {
+        })
     }
 
-    fn specification() -> Self::Specification {
-        Specification {
-        }
-    }
 }
 
 impl plugin::Specification for Specification {
+    fn new() -> Self {
+        Specification {
+        }
+    }
     fn name(&self) -> &'static str {
         "appendlog"
     }
@@ -32,5 +33,8 @@ impl plugin::Specification for Specification {
         vec![
             std::any::TypeId::of::<logging::Plugin>(),
         ]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

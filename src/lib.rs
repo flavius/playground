@@ -13,19 +13,19 @@ mod tests {
 
     #[test]
     fn initialization_order() {
-        let spec_web = web::Plugin::specification();
-        let spec_logging = logging::Plugin::specification();
-        let spec_appendlog = appendlog::Plugin::specification();
-        let spec_projector = projector::Plugin::specification();
-        let deps : Vec<&plugin::Specification> = vec![
-            &spec_web,
-            &spec_logging,
-            &spec_appendlog,
-            &spec_projector,
+        let spec_web = Box::new(web::Specification::new());
+        let spec_logging = Box::new(logging::Specification::new());
+        let spec_appendlog = Box::new(appendlog::Specification::new());
+        let spec_projector = Box::new(projector::Specification::new());
+        let deps : Vec<Box<dyn plugin::Specification>> = vec![
+            spec_web,
+            spec_logging,
+            spec_appendlog,
+            spec_projector,
         ];
         let sorted_specs = utils::sort_specifications(deps).unwrap();
         let expected = vec!["logging", "appendlog", "projector", "web"];
-        let actual = sorted_specs.map(|v| v.name());
+        let actual : Vec<&str> = sorted_specs.iter().map(|v| v.name()).collect();
         assert_eq!(expected, actual);
     }
 }

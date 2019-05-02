@@ -3,6 +3,8 @@ use crate::logging;
 use crate::projector;
 use crate::appendlog;
 
+use std::any::Any;
+
 pub struct Plugin {
 }
 
@@ -10,7 +12,10 @@ pub struct Specification {
 }
 
 impl plugin::Specification for Specification {
-    //type Plugin = Plugin;
+    fn new() -> Self {
+        Specification {
+        }
+    }
 
     fn name(&self) -> &'static str {
         "web"
@@ -26,19 +31,17 @@ impl plugin::Specification for Specification {
             std::any::TypeId::of::<projector::Plugin>(),
         ]
     }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl plugin::Plugin for Plugin {
-    type Specification = Specification;
+    //type Specification = Specification;
 
-    fn new(deps: Self::Specification) -> Self {
-        Plugin {
-        }
-    }
-
-    fn specification() -> Self::Specification {
-        Specification {
-        }
+    fn new(deps: Box<dyn plugin::Specification>) -> Option<Self> {
+        Some(Plugin {
+        })
     }
 }
 
