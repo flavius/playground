@@ -223,7 +223,7 @@ pub fn sort_specifications(mut specs: Vec<Box<dyn plugin::Specification>>) -> Op
     Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<&plugin::Specification>) -> Vec<Box<dyn plugin::Plugin>> {
+pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Vec<Box<dyn plugin::Plugin>> {
     let mut plugins = vec![];
     plugins
 }

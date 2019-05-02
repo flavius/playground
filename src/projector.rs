@@ -8,19 +8,23 @@ pub struct Plugin {
 }
 
 pub struct Specification {
+    plugin: Option<Box<dyn plugin::Plugin>>,
 }
 
-impl plugin::Plugin for Plugin {
-    fn new(deps: Box<dyn plugin::Specification>) -> Option<Self> {
+impl Plugin {
+    fn new(logging: logging::Plugin, appendlog: appendlog::Plugin) -> Option<Self> {
         Some(Plugin {
         })
     }
+}
+impl plugin::Plugin for Plugin {
 
 }
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
         Specification {
+            plugin: None,
         }
     }
     fn name(&self) -> &'static str {

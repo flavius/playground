@@ -12,7 +12,6 @@ pub trait Specification {
 }
 
 pub trait Plugin {
-    fn new(deps: Box<dyn Specification>) -> Option<Self> where Self: Sized;
 }
 
 //TODO: auto impl of Debug for Specification and Plugin

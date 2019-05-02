@@ -11,21 +11,32 @@ mod projector;
 mod tests {
     use super::*;
 
-    #[test]
-    fn initialization_order() {
+    fn get_std_deps() -> Vec<Box<dyn plugin::Specification>> {
         let spec_web = Box::new(web::Specification::new());
         let spec_logging = Box::new(logging::Specification::new());
         let spec_appendlog = Box::new(appendlog::Specification::new());
         let spec_projector = Box::new(projector::Specification::new());
-        let deps : Vec<Box<dyn plugin::Specification>> = vec![
+        vec![
             spec_web,
             spec_logging,
             spec_appendlog,
             spec_projector,
-        ];
+        ]
+    }
+
+    #[test]
+    fn initialization_order() {
+        let deps = get_std_deps();
         let sorted_specs = utils::sort_specifications(deps).unwrap();
         let expected = vec!["logging", "appendlog", "projector", "web"];
         let actual : Vec<&str> = sorted_specs.iter().map(|v| v.name()).collect();
         assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn instantiate_plugins() {
+        let deps = get_std_deps();
+        let sorted_specs = utils::sort_specifications(deps).unwrap();
+        println!("{:?}", sorted_specs[0].name());
     }
 }

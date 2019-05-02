@@ -9,11 +9,13 @@ pub struct Plugin {
 }
 
 pub struct Specification {
+    plugin: Option<Box<dyn plugin::Plugin>>,
 }
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
         Specification {
+            plugin: None,
         }
     }
 
@@ -38,10 +40,11 @@ impl plugin::Specification for Specification {
 
 impl plugin::Plugin for Plugin {
     //type Specification = Specification;
+}
 
-    fn new(deps: Box<dyn plugin::Specification>) -> Option<Self> {
+impl Plugin {
+    fn new(logging: logging::Plugin, appendlog: appendlog::Plugin, projector: projector::Plugin) -> Option<Self> {
         Some(Plugin {
         })
     }
 }
-
