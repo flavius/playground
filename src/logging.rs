@@ -2,8 +2,7 @@ use std::any::Any;
 
 use crate::plugin;
 
-pub struct Plugin {
-}
+pub struct Plugin {}
 
 pub struct Specification {
     plugin: Option<Box<dyn plugin::Plugin>>,
@@ -11,19 +10,14 @@ pub struct Specification {
 
 impl Plugin {
     fn new() -> Option<Self> {
-        Some(Plugin {
-        })
+        Some(Plugin {})
     }
 }
-impl plugin::Plugin for Plugin {
-
-}
+impl plugin::Plugin for Plugin {}
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
-        Specification {
-            plugin: None,
-        }
+        Specification { plugin: None }
     }
     fn name(&self) -> &'static str {
         "logging"
@@ -36,4 +30,3 @@ impl plugin::Specification for Specification {
         self
     }
 }
-

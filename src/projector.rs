@@ -1,11 +1,10 @@
 use std::any::Any;
 
-use crate::plugin;
-use crate::logging;
 use crate::appendlog;
+use crate::logging;
+use crate::plugin;
 
-pub struct Plugin {
-}
+pub struct Plugin {}
 
 pub struct Specification {
     plugin: Option<Box<dyn plugin::Plugin>>,
@@ -13,19 +12,14 @@ pub struct Specification {
 
 impl Plugin {
     fn new(logging: logging::Plugin, appendlog: appendlog::Plugin) -> Option<Self> {
-        Some(Plugin {
-        })
+        Some(Plugin {})
     }
 }
-impl plugin::Plugin for Plugin {
-
-}
+impl plugin::Plugin for Plugin {}
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
-        Specification {
-            plugin: None,
-        }
+        Specification { plugin: None }
     }
     fn name(&self) -> &'static str {
         "projector"
@@ -45,4 +39,3 @@ impl plugin::Specification for Specification {
         self
     }
 }
-

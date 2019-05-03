@@ -1,11 +1,11 @@
 mod plugin;
 use plugin::Plugin;
 use plugin::Specification;
+mod appendlog;
+mod logging;
+mod projector;
 mod utils;
 mod web;
-mod logging;
-mod appendlog;
-mod projector;
 
 #[cfg(test)]
 mod tests {
@@ -16,12 +16,7 @@ mod tests {
         let spec_logging = Box::new(logging::Specification::new());
         let spec_appendlog = Box::new(appendlog::Specification::new());
         let spec_projector = Box::new(projector::Specification::new());
-        vec![
-            spec_web,
-            spec_logging,
-            spec_appendlog,
-            spec_projector,
-        ]
+        vec![spec_web, spec_logging, spec_appendlog, spec_projector]
     }
 
     #[test]
@@ -29,7 +24,7 @@ mod tests {
         let deps = get_std_deps();
         let sorted_specs = utils::sort_specifications(deps).unwrap();
         let expected = vec!["logging", "appendlog", "projector", "web"];
-        let actual : Vec<&str> = sorted_specs.iter().map(|v| v.name()).collect();
+        let actual: Vec<&str> = sorted_specs.iter().map(|v| v.name()).collect();
         assert_eq!(expected, actual);
     }
 

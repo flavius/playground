@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::collections::vec_deque::VecDeque;
+use std::collections::HashMap;
 use std::fmt;
 
 use crate::plugin;
@@ -166,13 +166,12 @@ impl DependencyGraph {
         //sorted.reverse();
         sorted
     }
-
 }
 
 impl fmt::Debug for DependencyGraph {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.adjacency_matrix.len() == 0 {
-            true => { write!(f, "[]") },
+            true => write!(f, "[]"),
             false => {
                 write!(f, "[\n")?;
                 for (idx, value) in self.adjacency_matrix.iter().enumerate() {
@@ -185,12 +184,14 @@ impl fmt::Debug for DependencyGraph {
                     write!(f, "{}", if value == &true { 1 } else { 0 })?;
                 }
                 write!(f, "\n]")
-            },
+            }
         }
     }
 }
 
-pub fn sort_specifications(mut specs: Vec<Box<dyn plugin::Specification>>) -> Option<Vec<Box<dyn plugin::Specification>>> {
+pub fn sort_specifications(
+    mut specs: Vec<Box<dyn plugin::Specification>>,
+) -> Option<Vec<Box<dyn plugin::Specification>>> {
     if specs.len() < 2 {
         return Some(specs);
     }
@@ -200,21 +201,23 @@ pub fn sort_specifications(mut specs: Vec<Box<dyn plugin::Specification>>) -> Op
     }
 
     let mut graph = match DependencyGraph::new(specs.len()) {
-        Some(graph) => { graph },
-        None => { return None; },
+        Some(graph) => graph,
+        None => {
+            return None;
+        }
     };
     for (idx, spec) in specs.iter().enumerate() {
-        let deps : Vec<usize> = vec![];
+        let deps: Vec<usize> = vec![];
         for dep in spec.dependencies() {
             if !graph.add_dependency(idx, type_to_index[&dep]) {
-                return None
+                return None;
             }
         }
     }
     let mut init_ids = graph.topologically_sorted();
     init_ids.reverse();
     let mut sorted = vec![];
-    for (i, idx) in init_ids.iter().take(specs.len()-1).enumerate() {
+    for (i, idx) in init_ids.iter().take(specs.len() - 1).enumerate() {
         sorted.push((i, idx));
     }
     for op in sorted {
@@ -223,7 +226,9 @@ pub fn sort_specifications(mut specs: Vec<Box<dyn plugin::Specification>>) -> Op
     Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Vec<Box<dyn plugin::Plugin>> {
+pub fn initialize_plugins(
+    specs: Vec<Box<dyn plugin::Specification>>,
+) -> Vec<Box<dyn plugin::Plugin>> {
     let mut plugins = vec![];
     plugins
 }

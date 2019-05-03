@@ -1,7 +1,9 @@
 use std::any::Any;
 
 pub trait Specification {
-    fn new() -> Self where Self: Sized;
+    fn new() -> Self
+    where
+        Self: Sized;
     //type Plugin: Plugin;
     fn name(&self) -> &'static str;
     fn id(&self) -> std::any::TypeId;
@@ -9,9 +11,9 @@ pub trait Specification {
         vec![]
     }
     fn as_any(&self) -> &dyn Any;
+    //fn plugin(deps: Vec<Box<dyn Specification>>) -> Option<Box<dyn Plugin>>;
 }
 
-pub trait Plugin {
-}
+pub trait Plugin {}
 
 //TODO: auto impl of Debug for Specification and Plugin
