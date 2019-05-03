@@ -11,7 +11,7 @@ pub trait Specification {
         vec![]
     }
     fn as_any(&self) -> &dyn Any;
-    //fn plugin(deps: Vec<Box<dyn Specification>>) -> Option<Box<dyn Plugin>>;
+    //fn plugin(deps: &Vec<Box<dyn Plugin>>) -> Option<Box<dyn Plugin>>;
 }
 
 pub trait Plugin {}

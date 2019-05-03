@@ -51,12 +51,12 @@ impl DependencyGraph {
         let mut queue = VecDeque::new();
         let mut matrix = self.adjacency_matrix.clone();
         queue.push_back(from);
-        while queue.len() > 0 {
+        while !queue.is_empty() {
             let node = queue.pop_front().unwrap();
             let neighbours = self.outset(node, &matrix);
             //println!("\t\t neighbours of {} = {:?}", node, neighbours);
             for neighbour in neighbours {
-                if visited[neighbour] == false {
+                if !visited[neighbour] {
                     visited[neighbour] = true;
                     let idx = node * self.plugin_count + neighbour;
                     //println!("remove outgoing edge at {}", idx);
@@ -67,7 +67,7 @@ impl DependencyGraph {
             }
         }
         //println!("\t\t=== path from {} to {}: {:?}", from, to, path);
-        if path.len() > 0 && path.last().unwrap() == &to {
+        if !path.is_empty() && path.last().unwrap() == &to {
             Some(path)
         } else {
             None
@@ -137,7 +137,7 @@ impl DependencyGraph {
         let mut nodes_with_indegree_zero = VecDeque::new();
         for nodenum in 0..self.plugin_count {
             let inset = self.inset(nodenum, matrix);
-            if inset.len() == 0 {
+            if inset.is_empty() {
                 nodes_with_indegree_zero.push_back(nodenum);
             }
         }
@@ -149,7 +149,7 @@ impl DependencyGraph {
         let mut noinedges = self.only_outgoing_nodes(None);
         //println!("only out: {:?}", noinedges);
         let mut matrix = self.adjacency_matrix.clone();
-        while noinedges.len() > 0 {
+        while !noinedges.is_empty() {
             let head = noinedges.pop_front().unwrap();
             let out_nodes = self.outset(head, &matrix);
             sorted.push(head);
@@ -158,7 +158,7 @@ impl DependencyGraph {
                 let idx = head * self.plugin_count + out_node;
                 //println!("resetting edge at {} value {}", idx, matrix[idx]);
                 matrix[idx] = false;
-                if self.inset(out_node, &matrix).len() == 0 {
+                if self.inset(out_node, &matrix).is_empty() {
                     noinedges.push_back(out_node);
                 }
             }
@@ -170,7 +170,7 @@ impl DependencyGraph {
 
 impl fmt::Debug for DependencyGraph {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.adjacency_matrix.len() == 0 {
+        match self.adjacency_matrix.is_empty() {
             true => write!(f, "[]"),
             false => {
                 write!(f, "[\n")?;
