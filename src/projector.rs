@@ -11,7 +11,7 @@ pub struct Specification {
 }
 
 impl Plugin {
-    fn new(logging: logging::Plugin, appendlog: appendlog::Plugin) -> Option<Self> {
+    fn new(_logging: logging::Plugin, _appendlog: appendlog::Plugin) -> Option<Self> {
         Some(Plugin {})
     }
 }

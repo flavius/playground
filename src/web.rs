@@ -41,9 +41,9 @@ impl plugin::Plugin for Plugin {
 
 impl Plugin {
     fn new(
-        logging: logging::Plugin,
-        appendlog: appendlog::Plugin,
-        projector: projector::Plugin,
+        _logging: logging::Plugin,
+        _appendlog: appendlog::Plugin,
+        _projector: projector::Plugin,
     ) -> Option<Self> {
         Some(Plugin {})
     }

@@ -33,7 +33,7 @@ impl DependencyGraph {
         if what == dependency {
             return false;
         }
-        if let Some(mut path) = self.path(dependency, what) {
+        if let Some(_path) = self.path(dependency, what) {
             //println!("\tcycle detected from {} to {}: {:?}", dependency, what, path);
             return false;
         }
@@ -207,7 +207,7 @@ pub fn sort_specifications(
         }
     };
     for (idx, spec) in specs.iter().enumerate() {
-        let deps: Vec<usize> = vec![];
+        let _deps: Vec<usize> = vec![];
         for dep in spec.dependencies() {
             if !graph.add_dependency(idx, type_to_index[&dep]) {
                 return None;
@@ -227,9 +227,9 @@ pub fn sort_specifications(
 }
 
 pub fn initialize_plugins(
-    specs: Vec<Box<dyn plugin::Specification>>,
+    _specs: Vec<Box<dyn plugin::Specification>>,
 ) -> Vec<Box<dyn plugin::Plugin>> {
-    let mut plugins = vec![];
+    let plugins = vec![];
     plugins
 }
 
