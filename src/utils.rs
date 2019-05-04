@@ -1,6 +1,7 @@
 use std::collections::vec_deque::VecDeque;
 use std::collections::HashMap;
 use std::fmt;
+use std::any::{Any, TypeId};
 
 use crate::plugin;
 
@@ -173,7 +174,7 @@ impl fmt::Debug for DependencyGraph {
         match self.adjacency_matrix.is_empty() {
             true => write!(f, "[]"),
             false => {
-                write!(f, "[\n")?;
+                writeln!(f, "[")?;
                 for (idx, value) in self.adjacency_matrix.iter().enumerate() {
                     if idx != 0 {
                         write!(f, ",")?;
@@ -226,11 +227,13 @@ pub fn sort_specifications(
     Some(specs)
 }
 
-pub fn initialize_plugins(
-    _specs: Vec<Box<dyn plugin::Specification>>,
-) -> Vec<Box<dyn plugin::Plugin>> {
-    let plugins = vec![];
-    plugins
+pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Result<Vec<Box<dyn plugin::Plugin>>, crate::InfrastructureError> {
+    let mut plugins = vec![];
+    for spec in specs {
+        let plugin = spec.new_plugin(&plugins)?;
+        plugins.push(plugin);
+    }
+    Ok(plugins)
 }
 
 #[cfg(test)]

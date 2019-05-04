@@ -1,8 +1,10 @@
-use std::any::Any;
+use std::any::{Any, TypeId};
+use std::collections::HashMap;
 
 use crate::logging;
 use crate::plugin;
 
+#[derive(Debug)]
 pub struct Plugin {}
 
 pub struct Specification {
@@ -10,12 +12,16 @@ pub struct Specification {
 }
 
 impl Plugin {
-    fn new(_logging: logging::Plugin) -> Option<Self> {
+    fn new(_logging: &logging::Plugin) -> Option<Self> {
         Some(Plugin {})
     }
 }
 
-impl plugin::Plugin for Plugin {}
+impl plugin::Plugin for Plugin {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
@@ -33,5 +39,13 @@ impl plugin::Specification for Specification {
     }
     fn as_any(&self) -> &dyn Any {
         self
+    }
+    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, crate::InfrastructureError> {
+        let log_plugin_idx = plugin::get_dep::<logging::Plugin>(plugins)?;
+        let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<logging::Plugin>().unwrap();
+        match Plugin::new(log_plugin) {
+            None => Err("cannot create appendlog plugin"),
+            Some(plugin) => Ok(Box::new(plugin)),
+        }
     }
 }
