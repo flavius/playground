@@ -21,6 +21,12 @@ impl plugin::Plugin for Plugin {
     fn as_any(&self) -> &dyn Any {
         self
     }
+    fn run(&self) {
+        println!("running appendlog");
+    }
+    fn shutdown(&self) {
+        println!("shutting down appendlog");
+    }
 }
 
 impl plugin::Specification for Specification {
@@ -40,7 +46,7 @@ impl plugin::Specification for Specification {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, crate::InfrastructureError> {
+    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin_idx = plugin::get_dep::<logging::Plugin>(plugins)?;
         let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<logging::Plugin>().unwrap();
         match Plugin::new(log_plugin) {

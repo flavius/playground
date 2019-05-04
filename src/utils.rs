@@ -227,7 +227,7 @@ pub fn sort_specifications(
     Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Result<Vec<Box<dyn plugin::Plugin>>, crate::InfrastructureError> {
+pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Result<Vec<Box<dyn plugin::Plugin>>, plugin::PluginError> {
     let mut plugins = vec![];
     for spec in specs {
         let plugin = spec.new_plugin(&plugins)?;

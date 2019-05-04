@@ -1,13 +1,13 @@
 mod plugin;
-use plugin::Plugin;
-use plugin::Specification;
 mod appendlog;
 mod logging;
 mod projector;
 mod utils;
 mod web;
 
-type InfrastructureError = &'static str;
+
+use plugin::Plugin;
+use plugin::Specification;
 
 use std::any::{Any, TypeId};
 
@@ -42,5 +42,18 @@ mod tests {
 
         let actual_ids: Vec<TypeId> = plugins.iter().map(|v| v.as_any().type_id()).collect();
         assert_eq!(expected_ids, actual_ids);
+    }
+
+    #[test]
+    fn plugin_lifecycle() {
+        let deps = get_std_deps();
+        let sorted_specs = utils::sort_specifications(deps).unwrap();
+        let plugins = utils::initialize_plugins(sorted_specs).unwrap();
+        for plugin in plugins.iter() {
+            plugin.run();
+        }
+        for plugin in plugins.iter().rev() {
+            plugin.shutdown();
+        }
     }
 }

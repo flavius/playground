@@ -19,6 +19,12 @@ impl plugin::Plugin for Plugin {
     fn as_any(&self) -> &dyn Any {
         self
     }
+    fn run(&self) {
+        println!("running logging");
+    }
+    fn shutdown(&self) {
+        println!("shutting down logging");
+    }
 }
 
 impl plugin::Specification for Specification {
@@ -35,7 +41,7 @@ impl plugin::Specification for Specification {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, crate::InfrastructureError> {
+    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, plugin::PluginError> {
         match Plugin::new() {
             None => Err("cannot create logging plugin"),
             Some(plugin) => Ok(Box::new(plugin)),
