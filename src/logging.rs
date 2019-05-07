@@ -3,8 +3,14 @@ use std::collections::HashMap;
 
 use crate::plugin;
 
-#[derive(Debug)]
 pub struct Plugin {}
+
+impl ::std::fmt::Debug for Plugin {
+    fn fmt(&self, __arg_0: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let mut builder = __arg_0.debug_struct("logging::Plugin");
+        builder.finish()
+    }
+}
 
 pub struct Specification {
 }

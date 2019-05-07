@@ -49,6 +49,7 @@ impl plugin::Specification for Specification {
     fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin_idx = plugin::get_dep::<logging::Plugin>(plugins)?;
         let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<logging::Plugin>().unwrap();
+        println!("XXX LOG PLUGIN: {:?}", log_plugin);
         match Plugin::new(log_plugin) {
             None => Err("cannot create appendlog plugin"),
             Some(plugin) => Ok(Box::new(plugin)),
