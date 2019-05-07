@@ -5,19 +5,22 @@ use std::rc::Rc;
 use crate::logging;
 use crate::plugin;
 
-#[derive(Debug)]
-pub struct Plugin {}
+pub struct Plugin<'a> {
+    logger: &'a Rc<logging::Plugin>,
+}
 
 pub struct Specification {
 }
 
-impl Plugin {
-    fn new(_logging: &logging::Plugin) -> Option<Self> {
-        Some(Plugin {})
+impl<'a> Plugin<'a> {
+    fn new(logger: &'a Rc<logging::Plugin>) -> Option<Self> {
+        Some(Plugin {
+            logger
+        })
     }
 }
 
-impl plugin::Plugin for Plugin {
+impl<'a> plugin::Plugin for Plugin<'a> {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -48,7 +51,7 @@ impl plugin::Specification for Specification {
     }
     fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin_idx = plugin::get_dep::<logging::Plugin>(plugins)?;
-        let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<logging::Plugin>().unwrap();
+        let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<Rc<logging::Plugin>>().unwrap();
         println!("XXX LOG PLUGIN: {:?}", log_plugin);
         match Plugin::new(log_plugin) {
             None => Err("cannot create appendlog plugin"),
