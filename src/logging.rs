@@ -1,5 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use crate::plugin;
 
@@ -47,10 +48,10 @@ impl plugin::Specification for Specification {
     fn as_any(&self) -> &dyn Any {
         self
     }
-    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         match Plugin::new() {
             None => Err("cannot create logging plugin"),
-            Some(plugin) => Ok(Box::new(plugin)),
+            Some(plugin) => Ok(Rc::new(plugin)),
         }
     }
 }

@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::collections::vec_deque::VecDeque;
 use std::collections::HashMap;
 use std::fmt;
@@ -191,8 +192,8 @@ impl fmt::Debug for DependencyGraph {
 }
 
 pub fn sort_specifications(
-    mut specs: Vec<Box<dyn plugin::Specification>>,
-) -> Option<Vec<Box<dyn plugin::Specification>>> {
+    mut specs: Vec<Rc<dyn plugin::Specification>>,
+) -> Option<Vec<Rc<dyn plugin::Specification>>> {
     if specs.len() < 2 {
         return Some(specs);
     }
@@ -227,7 +228,7 @@ pub fn sort_specifications(
     Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<Box<dyn plugin::Specification>>) -> Result<Vec<Box<dyn plugin::Plugin>>, plugin::PluginError> {
+pub fn initialize_plugins(specs: Vec<Rc<dyn plugin::Specification>>) -> Result<Vec<Rc<dyn plugin::Plugin>>, plugin::PluginError> {
     let mut plugins = vec![];
     for spec in specs {
         let plugin = spec.new_plugin(&plugins)?;

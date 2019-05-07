@@ -1,5 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub type PluginError = &'static str;
 
@@ -15,7 +16,7 @@ pub trait Specification {
     }
     fn as_any(&self) -> &dyn Any;
 
-    fn new_plugin(&self, plugins: &Vec<Box<dyn Plugin>>) -> Result<Box<dyn Plugin>, PluginError>;
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn Plugin>>) -> Result<Rc<dyn Plugin>, PluginError>;
 }
 
 pub trait Plugin {
@@ -26,7 +27,7 @@ pub trait Plugin {
     fn shutdown(&self);
 }
 
-pub fn get_dep<T: 'static>(deps: &Vec<Box<dyn Plugin>>) -> Result<usize, PluginError> {
+pub fn get_dep<T: 'static>(deps: &Vec<Rc<dyn Plugin>>) -> Result<usize, PluginError> {
     for (idx, plugin) in deps.iter().enumerate() {
         if TypeId::of::<T>() == plugin.as_any().type_id() {
             return Ok(idx);

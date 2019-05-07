@@ -1,33 +1,30 @@
 mod plugin;
 mod appendlog;
 mod logging;
-mod projector;
 mod utils;
-mod web;
 
 
 use plugin::Plugin;
 use plugin::Specification;
 
 use std::any::{Any, TypeId};
+use std::rc::Rc;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn get_std_deps() -> Vec<Box<dyn plugin::Specification>> {
-        let spec_web = Box::new(web::Specification::new());
-        let spec_logging = Box::new(logging::Specification::new());
-        let spec_appendlog = Box::new(appendlog::Specification::new());
-        let spec_projector = Box::new(projector::Specification::new());
-        vec![spec_web, spec_logging, spec_appendlog, spec_projector]
+    fn get_std_deps() -> Vec<Rc<dyn plugin::Specification>> {
+        let spec_logging = Rc::new(logging::Specification::new());
+        let spec_appendlog = Rc::new(appendlog::Specification::new());
+        vec![spec_logging, spec_appendlog]
     }
 
     #[test]
     fn initialization_order() {
         let deps = get_std_deps();
         let sorted_specs = utils::sort_specifications(deps).unwrap();
-        let expected = vec!["logging", "appendlog", "projector", "web"];
+        let expected = vec!["logging", "appendlog", ];
         let actual: Vec<&str> = sorted_specs.iter().map(|v| v.name()).collect();
         assert_eq!(expected, actual);
     }
