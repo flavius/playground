@@ -18,9 +18,6 @@ impl Plugin {
 }
 
 impl plugin::Plugin for Plugin {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
     fn run(&self) {
         println!("running projector");
     }
@@ -57,3 +54,4 @@ impl plugin::Specification for Specification {
         }
     }
 }
+

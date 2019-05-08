@@ -37,14 +37,11 @@ mod tests {
     fn instantiate_plugins() {
         let deps = get_std_deps();
         let sorted_specs = utils::sort_specifications(deps).unwrap();
-        for s in sorted_specs.iter() {
-            println!("{} {:?}", s.name(), s.id());
-        }
         let expected_ids: Vec<TypeId> = sorted_specs.iter().map(|v| v.id()).collect();
 
         let plugins = utils::initialize_plugins(sorted_specs).unwrap();
 
-        let actual_ids: Vec<TypeId> = plugins.iter().map(|v| v.as_any().type_id()).collect();
+        let actual_ids: Vec<TypeId> = plugins.iter().map(|v| v.as_ref().type_id()).collect();
         assert_eq!(expected_ids, actual_ids);
     }
 

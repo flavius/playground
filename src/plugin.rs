@@ -4,6 +4,10 @@ use std::rc::Rc;
 
 pub type PluginError = &'static str;
 
+pub trait AsAny {
+    fn as_any(self: Rc<Self>) -> Rc<dyn Any>;
+}
+
 pub trait Specification {
     fn new() -> Self
     where
@@ -19,25 +23,26 @@ pub trait Specification {
     fn new_plugin(&self, plugins: &Vec<Rc<dyn Plugin>>) -> Result<Rc<dyn Plugin>, PluginError>;
 }
 
-pub trait Plugin {
-    fn as_any(&self) -> &dyn Any;
-
+pub trait Plugin: Any + AsAny {
     fn run(&self);
-
     fn shutdown(&self);
 }
 
-pub fn get_dep<T: 'static>(deps: &Vec<Rc<dyn Plugin>>) -> Result<Rc<T>, PluginError> {
-    println!("get dep {:?}", TypeId::of::<T>());
-    for (idx, plugin) in deps.iter().enumerate() {
-        if TypeId::of::<T>() == plugin.as_any().type_id() {
-            match plugin.as_any().downcast_ref::<Rc<T>>() {
-                None => return Err("could not downcast"),
-                Some(plugin) => {
-                    return Ok(plugin.clone());
-                }
-            }
+impl<T: Plugin + 'static> AsAny for T {
+    fn as_any(self: Rc<Self>) -> Rc<dyn Any> {
+        self
+    }
+}
+
+pub fn get_dep<T: Plugin>(deps: &Vec<Rc<dyn Plugin>>) -> Result<Rc<T>, PluginError> {
+    let type_id = TypeId::of::<T>();
+    let first_match = deps.iter().find(|&plugin| plugin.as_ref().type_id() == type_id);
+    match first_match {
+        None => Err("cannot get dependency"),
+        Some(first_match) => {
+            let cloned = Rc::clone(first_match);
+            let dependency = cloned.as_any().downcast().expect("Cannot downcast dependency");
+            Ok(dependency)
         }
     }
-    Err("cannot get dependency")
 }

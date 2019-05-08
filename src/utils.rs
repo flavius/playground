@@ -231,7 +231,6 @@ pub fn sort_specifications(
 pub fn initialize_plugins(specs: Vec<Rc<dyn plugin::Specification>>) -> Result<Vec<Rc<dyn plugin::Plugin>>, plugin::PluginError> {
     let mut plugins = vec![];
     for spec in specs {
-        println!("creating new plugin {}", spec.name());
         let plugin = spec.new_plugin(&plugins)?;
         plugins.push(plugin);
     }
