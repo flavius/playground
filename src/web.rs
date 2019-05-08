@@ -5,16 +5,16 @@ use crate::projector;
 
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub struct Plugin {}
 
 pub struct Specification {
-    plugin: Option<Box<dyn plugin::Plugin>>,
 }
 
 impl plugin::Specification for Specification {
     fn new() -> Self {
-        Specification { plugin: None }
+        Specification {}
     }
 
     fn name(&self) -> &'static str {
@@ -37,16 +37,13 @@ impl plugin::Specification for Specification {
         self
     }
 
-    fn new_plugin(&self, plugins: &Vec<Box<dyn plugin::Plugin>>) -> Result<Box<dyn plugin::Plugin>, plugin::PluginError> {
-        let log_plugin_idx = plugin::get_dep::<logging::Plugin>(plugins)?;
-        let log_plugin = plugins[log_plugin_idx].as_any().downcast_ref::<logging::Plugin>().unwrap();
-        let appendlog_plugin_idx = plugin::get_dep::<appendlog::Plugin>(plugins)?;
-        let appendlog_plugin = plugins[appendlog_plugin_idx].as_any().downcast_ref::<appendlog::Plugin>().unwrap();
-        let projector_plugin_idx = plugin::get_dep::<projector::Plugin>(plugins)?;
-        let projector_plugin = plugins[projector_plugin_idx].as_any().downcast_ref::<projector::Plugin>().unwrap();
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
+        let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
+        let appendlog_plugin = plugin::get_dep::<appendlog::Plugin>(plugins)?;
+        let projector_plugin = plugin::get_dep::<projector::Plugin>(plugins)?;
         match Plugin::new(log_plugin, appendlog_plugin, projector_plugin) {
             None => Err("cannot create web plugin"),
-            Some(plugin) => Ok(Box::new(plugin)),
+            Some(plugin) => Ok(Rc::new(plugin)),
         }
     }
 }
@@ -65,7 +62,7 @@ impl plugin::Plugin for Plugin {
 }
 
 impl Plugin {
-    fn new(_logging: &logging::Plugin, _appendlog: &appendlog::Plugin, projector: &projector::Plugin) -> Option<Self> {
+    fn new(logger: Rc<logging::Plugin>, appendlog: Rc<appendlog::Plugin>, projector: Rc<projector::Plugin>) -> Option<Self> {
         Some(Plugin {})
     }
 }
