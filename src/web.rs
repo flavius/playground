@@ -33,10 +33,6 @@ impl plugin::Specification for Specification {
         ]
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
         let appendlog_plugin = plugin::get_dep::<appendlog::Plugin>(plugins)?;

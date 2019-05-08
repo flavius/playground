@@ -49,9 +49,6 @@ impl plugin::Specification for Specification {
     fn id(&self) -> std::any::TypeId {
         std::any::TypeId::of::<Plugin>()
     }
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
     fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         match Plugin::new() {
             None => Err("cannot create logging plugin"),

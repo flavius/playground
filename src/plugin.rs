@@ -4,11 +4,15 @@ use std::rc::Rc;
 
 pub type PluginError = &'static str;
 
-pub trait AsAny {
+pub trait AsAnyPlugin {
     fn as_any(self: Rc<Self>) -> Rc<dyn Any>;
 }
 
-pub trait Specification {
+pub trait AsAnySpecification {
+    fn as_any(self: &Self) -> &dyn Any;
+}
+
+pub trait Specification: Any + AsAnySpecification {
     fn new() -> Self
     where
         Self: Sized;
@@ -18,18 +22,23 @@ pub trait Specification {
     fn dependencies(&self) -> Vec<std::any::TypeId> {
         vec![]
     }
-    fn as_any(&self) -> &dyn Any;
 
     fn new_plugin(&self, plugins: &Vec<Rc<dyn Plugin>>) -> Result<Rc<dyn Plugin>, PluginError>;
 }
 
-pub trait Plugin: Any + AsAny {
+pub trait Plugin: Any + AsAnyPlugin {
     fn run(&self);
     fn shutdown(&self);
 }
 
-impl<T: Plugin + 'static> AsAny for T {
+impl<T: Plugin + 'static> AsAnyPlugin for T {
     fn as_any(self: Rc<Self>) -> Rc<dyn Any> {
+        self
+    }
+}
+
+impl<T: Specification + 'static> AsAnySpecification for T {
+    fn as_any(self: &Self) -> &dyn Any {
         self
     }
 }
