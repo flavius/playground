@@ -6,8 +6,15 @@ use crate::projector;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Plugin {}
+
+impl Plugin {
+    fn new(logger: Rc<RefCell<logging::Plugin>>, appendlog: Rc<RefCell<appendlog::Plugin>>, projector: Rc<RefCell<projector::Plugin>>) -> Option<Self> {
+        Some(Plugin {})
+    }
+}
 
 pub struct Specification {
 }
@@ -33,19 +40,19 @@ impl plugin::Specification for Specification {
         ]
     }
 
-    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
         let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
         let appendlog_plugin = plugin::get_dep::<appendlog::Plugin>(plugins)?;
         let projector_plugin = plugin::get_dep::<projector::Plugin>(plugins)?;
         match Plugin::new(log_plugin, appendlog_plugin, projector_plugin) {
             None => Err("cannot create web plugin"),
-            Some(plugin) => Ok(Rc::new(plugin)),
+            Some(plugin) => Ok(Rc::new(RefCell::new(plugin))),
         }
     }
 }
 
 impl plugin::Plugin for Plugin {
-    fn run(&self) {
+    fn run(&mut self) {
         println!("running web");
     }
     fn shutdown(&self) {
@@ -53,9 +60,4 @@ impl plugin::Plugin for Plugin {
     }
 }
 
-impl Plugin {
-    fn new(logger: Rc<logging::Plugin>, appendlog: Rc<appendlog::Plugin>, projector: Rc<projector::Plugin>) -> Option<Self> {
-        Some(Plugin {})
-    }
-}
 

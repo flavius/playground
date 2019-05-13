@@ -1,6 +1,7 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::appendlog;
 use crate::logging;
@@ -12,13 +13,13 @@ pub struct Specification {
 }
 
 impl Plugin {
-    fn new(logger: Rc<logging::Plugin>, appendlog: Rc<appendlog::Plugin>) -> Option<Self> {
+    fn new(logger: Rc<RefCell<logging::Plugin>>, appendlog: Rc<RefCell<appendlog::Plugin>>) -> Option<Self> {
         Some(Plugin {})
     }
 }
 
 impl plugin::Plugin for Plugin {
-    fn run(&self) {
+    fn run(&mut self) {
         println!("running projector");
     }
     fn shutdown(&self) {
@@ -42,12 +43,12 @@ impl plugin::Specification for Specification {
             std::any::TypeId::of::<appendlog::Plugin>(),
         ]
     }
-    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
         let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
         let appendlog_plugin = plugin::get_dep::<appendlog::Plugin>(plugins)?;
         match Plugin::new(log_plugin, appendlog_plugin) {
             None => Err("cannot create projector plugin"),
-            Some(plugin) => Ok(Rc::new(plugin)),
+            Some(plugin) => Ok(Rc::new(RefCell::new(plugin))),
         }
     }
 }

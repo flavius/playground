@@ -11,6 +11,7 @@ use plugin::Specification;
 
 use std::any::{Any, TypeId};
 use std::rc::Rc;
+use std::borrow::BorrowMut;
 
 #[cfg(test)]
 mod tests {
@@ -49,12 +50,15 @@ mod tests {
     fn plugin_lifecycle() {
         let deps = get_std_deps();
         let sorted_specs = utils::sort_specifications(deps).unwrap();
-        let plugins = utils::initialize_plugins(sorted_specs).unwrap();
-        for plugin in plugins.iter() {
-            plugin.run();
+        let mut plugins = utils::initialize_plugins(sorted_specs).unwrap();
+        for plugin in plugins.iter_mut() {
+            (*plugin).run();
         }
-        for plugin in plugins.iter().rev() {
-            plugin.shutdown();
-        }
+        //for plugin in plugins.iter().rev() {
+        //    plugin.shutdown();
+        //}
+    }
+    fn run_plugin(plugin: &mut plugin::Plugin) {
+        plugin.run();
     }
 }

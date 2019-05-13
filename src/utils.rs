@@ -1,6 +1,7 @@
 use std::collections::vec_deque::VecDeque;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::fmt;
 use std::any::{Any, TypeId};
 
@@ -228,7 +229,7 @@ pub fn sort_specifications(
     Some(specs)
 }
 
-pub fn initialize_plugins(specs: Vec<Rc<dyn plugin::Specification>>) -> Result<Vec<Rc<dyn plugin::Plugin>>, plugin::PluginError> {
+pub fn initialize_plugins(specs: Vec<Rc<dyn plugin::Specification>>) -> Result<Vec<Rc<RefCell<dyn plugin::Plugin>>>, plugin::PluginError> {
     let mut plugins = vec![];
     for spec in specs {
         let plugin = spec.new_plugin(&plugins)?;

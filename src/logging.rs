@@ -1,6 +1,7 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::plugin;
 
@@ -30,7 +31,7 @@ impl Plugin {
 }
 
 impl plugin::Plugin for Plugin {
-    fn run(&self) {
+    fn run(&mut self) {
         println!("running logging");
     }
     fn shutdown(&self) {
@@ -49,10 +50,10 @@ impl plugin::Specification for Specification {
     fn id(&self) -> std::any::TypeId {
         std::any::TypeId::of::<Plugin>()
     }
-    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
         match Plugin::new() {
             None => Err("cannot create logging plugin"),
-            Some(plugin) => Ok(Rc::new(plugin)),
+            Some(plugin) => Ok(Rc::new(RefCell::new(plugin))),
         }
     }
 }
