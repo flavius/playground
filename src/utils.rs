@@ -230,12 +230,24 @@ pub fn sort_specifications(
 }
 
 pub fn initialize_plugins(specs: Vec<Rc<dyn plugin::Specification>>) -> Result<Vec<Rc<RefCell<dyn plugin::Plugin>>>, plugin::PluginError> {
-    let mut plugins = vec![];
+    let mut plugins: Vec<Rc<dyn plugin::Plugin>> = vec![];
     for spec in specs {
-        let plugin = spec.new_plugin(&plugins)?;
+        let plugin: Rc<dyn plugin::Plugin> = spec.new_plugin(&plugins)?;
         plugins.push(plugin);
     }
-    Ok(plugins)
+    let mut mut_plugins = vec![];
+    for plugin in plugins {
+        let plugin: dyn plugin::Plugin = Rc::try_unwrap(plugin);
+        match plugin {
+            Ok(plugin) => {
+                mut_plugins.push(Rc::new(RefCell::new(plugin)));
+            },
+            Err(_) => {
+                return Err("Cannot re-wrap plugin for interior mutability");
+            }
+        };
+    }
+    Ok(mut_plugins)
 }
 
 #[cfg(test)]

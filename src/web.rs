@@ -40,7 +40,7 @@ impl plugin::Specification for Specification {
         ]
     }
 
-    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
         let appendlog_plugin = plugin::get_dep::<appendlog::Plugin>(plugins)?;
         let projector_plugin = plugin::get_dep::<projector::Plugin>(plugins)?;

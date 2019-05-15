@@ -24,7 +24,7 @@ pub trait Specification: Any + AsAnySpecification {
         vec![]
     }
 
-    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn Plugin>>>) -> Result<Rc<RefCell<dyn Plugin>>, PluginError>;
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn Plugin>>) -> Result<Rc<dyn Plugin>, PluginError>;
 }
 
 pub trait Plugin: Any + AsAnyPlugin {
@@ -38,20 +38,32 @@ impl<T: Plugin + 'static> AsAnyPlugin for T {
     }
 }
 
+impl<T: Plugin + 'static> Plugin for RefCell<T> {
+    fn run(&mut self) {
+        self.borrow_mut().run();
+    }
+
+    fn shutdown(&self) {
+        self.borrow().run();
+    }
+}
+
 impl<T: Specification + 'static> AsAnySpecification for T {
     fn as_any(self: &Self) -> &dyn Any {
         self
     }
 }
 
-pub fn get_dep<T: Plugin>(deps: &Vec<Rc<RefCell<dyn Plugin>>>) -> Result<Rc<RefCell<T>>, PluginError> {
+pub fn get_dep<T: Plugin>(deps: &Vec<Rc<dyn Plugin>>) -> Result<Rc<RefCell<T>>, PluginError> {
     let type_id = TypeId::of::<T>();
-    let first_match: Option<&Rc<RefCell<dyn Plugin>>> = deps.iter().find(|&plugin| plugin.as_ref().type_id() == type_id);
+    let first_match: Option<&Rc<dyn Plugin>> = deps.iter().find(|&plugin| plugin.as_ref().type_id() == type_id);
     match first_match {
         None => Err("cannot get dependency"),
         Some(first_match) => {
-            let cloned: Rc<RefCell<T>> = Rc::clone(first_match);
-            let dependency = cloned.as_any().downcast::<RefCell<T>>().expect("Cannot downcast dependency");
+            //let cloned: Rc<RefCell<T>> = Rc::clone(first_match);
+            let cloned = Rc::clone(first_match);
+            //let dependency = cloned.as_any().downcast::<RefCell<T>>().expect("Cannot downcast dependency");
+            let dependency : Rc<RefCell<T>> = cloned.as_any().downcast().expect("Cannot downcast dependency");
             Ok(dependency)
         }
     }

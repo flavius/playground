@@ -46,7 +46,7 @@ impl plugin::Specification for Specification {
     fn dependencies(&self) -> Vec<std::any::TypeId> {
         vec![std::any::TypeId::of::<logging::Plugin>()]
     }
-    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         let log_plugin = plugin::get_dep::<logging::Plugin>(plugins)?;
         match Plugin::new(log_plugin) {
             None => Err("cannot create appendlog plugin"),

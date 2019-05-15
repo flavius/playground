@@ -50,7 +50,7 @@ impl plugin::Specification for Specification {
     fn id(&self) -> std::any::TypeId {
         std::any::TypeId::of::<Plugin>()
     }
-    fn new_plugin(&self, plugins: &Vec<Rc<RefCell<dyn plugin::Plugin>>>) -> Result<Rc<RefCell<dyn plugin::Plugin>>, plugin::PluginError> {
+    fn new_plugin(&self, plugins: &Vec<Rc<dyn plugin::Plugin>>) -> Result<Rc<dyn plugin::Plugin>, plugin::PluginError> {
         match Plugin::new() {
             None => Err("cannot create logging plugin"),
             Some(plugin) => Ok(Rc::new(RefCell::new(plugin))),
