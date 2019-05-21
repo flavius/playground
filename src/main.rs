@@ -6,40 +6,41 @@ enum Plugin {
 }
 
 impl Plugin {
-    fn run(&self) {
+    fn run(&mut self) {
         println!("running generic plugin");
         match *self {
-            Plugin::Web(ref plugin) => plugin.run(),
-            Plugin::Logging(ref plugin) => plugin.run(),
+            Plugin::Web(ref mut plugin) => plugin.run(),
+            Plugin::Logging(ref mut plugin) => plugin.run(),
         }
         println!("finish running generic plugin");
     }
-    fn shutdown(&self) {
+    fn shutdown(&mut self) {
         println!("shutdown generic plugin");
         match *self {
-            Plugin::Web(ref plugin) => plugin.shutdown(),
-            Plugin::Logging(ref plugin) => plugin.shutdown(),
+            Plugin::Web(ref mut plugin) => plugin.shutdown(),
+            Plugin::Logging(ref mut plugin) => plugin.shutdown(),
         }
         println!("finish shutdown generic plugin");
     }
 }
 
 struct Web {
-    logger: LogWriter,
+    logger: Box<dyn LogWriter>,
 }
 
 impl Web {
     fn new(logging: &Logging) -> Self {
-        let mut logger = logging.new_logger("web".to_owned(), file!().to_string(), line!());
+        let ctx = logging.new_context("web".to_owned());
+        let logger = Box::new(logging.new_logger(ctx));
         Web {
             logger,
         }
     }
-    fn run(&self) {
-        println!("running web plugin");
+    fn run(&mut self) {
+        self.logger.log_raw("run".to_owned());
     }
-    fn shutdown(&self) {
-        println!("shutdown web plugin");
+    fn shutdown(&mut self) {
+        self.logger.log_raw("shutdown".to_owned());
     }
 }
 
@@ -52,28 +53,53 @@ impl Logging {
         }
     }
     fn run(&self) {
-        println!("running logging plugin");
+        let ctx = self.new_context("logging".to_owned());
+        let mut logger = Box::new(self.new_logger(ctx));
+        logger.log_raw("run".to_owned());
     }
     fn shutdown(&self) {
-        println!("shutdown logging plugin");
+        let ctx = self.new_context("logging".to_owned());
+        let mut logger = Box::new(self.new_logger(ctx));
+        logger.log_raw("shutdown".to_owned());
     }
 
-    fn new_logger(&self, id: String, file: String, line: u32) -> LogWriter {
-        LogWriter {
-            id,
-            file,
-            line,
+    fn new_logger(&self, context: LoggingContext) -> impl LogWriter {
+        InMemoryLogger::new(context)
+    }
+    fn new_context(&self, id: String) -> LoggingContext {
+        LoggingContext(id)
+    }
+}
+
+trait LogWriter {
+    fn log_raw(&mut self, msg: String);
+}
+
+struct InMemoryLogger {
+    messages: Vec<String>,
+    context: LoggingContext,
+}
+
+impl LogWriter for InMemoryLogger {
+    fn log_raw(&mut self, msg: String) {
+        println!("{}\t\t{}", &self.context.0, &msg);
+        self.messages.push(msg);
+    }
+}
+
+impl InMemoryLogger {
+    fn new(context: LoggingContext) -> Self {
+        let messages = vec![];
+        InMemoryLogger {
+            messages,
+            context,
         }
     }
 }
 
-struct LogWriter {
-    id: String,
-    file: String,
-    line: u32,
-}
-
 struct PluginList(Vec<Rc<Plugin>>);
+
+struct LoggingContext(String);
 
 impl PluginList {
     fn new() -> Self {
@@ -84,8 +110,14 @@ impl PluginList {
     fn all(&self) -> impl Iterator<Item = &Rc<Plugin>> {
         self.0.iter()
     }
+    fn all_mut(&mut self) -> impl Iterator<Item = &mut Rc<Plugin>> {
+        self.0.iter_mut()
+    }
     fn all_rev(&self) -> impl DoubleEndedIterator<Item = &Rc<Plugin>> {
         self.0.iter().rev()
+    }
+    fn all_rev_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Rc<Plugin>> {
+        self.0.iter_mut().rev()
     }
     fn register(&mut self, plugin: Plugin) {
         self.0.push(Rc::new(plugin));
@@ -94,36 +126,40 @@ impl PluginList {
 
 struct Application {
     plugins: PluginList,
+    logger: Box<dyn LogWriter>,
 }
 
 impl Application {
     fn new() -> Self {
         let mut plugins = PluginList::new();
         let logging = Logging::new();
+        let ctx = logging.new_context("application".to_owned());
+        let logger = Box::new(logging.new_logger(ctx));
         let web = Web::new(&logging);
         plugins.register(Plugin::Logging(logging));
         plugins.register(Plugin::Web(web));
         Application {
             plugins,
+            logger,
         }
     }
-    fn run(&self) {
-        println!("running app");
-        for plugin in self.plugins.all() {
-            plugin.run();
+    fn run(&mut self) {
+        self.logger.log_raw("BEFORE run".to_owned());
+        for mut plugin in self.plugins.all_mut() {
+            Rc::<Plugin>::get_mut(&mut plugin).unwrap().run();
         }
-        println!("finished running app");
+        self.logger.log_raw("AFTER run".to_owned());
     }
-    fn shutdown(&self) {
-        println!("shutting down app");
-        for plugin in self.plugins.all_rev() {
-            plugin.shutdown();
+    fn shutdown(&mut self) {
+        self.logger.log_raw("BEFORE shutdown".to_owned());
+        for mut plugin in self.plugins.all_rev_mut() {
+            Rc::<Plugin>::get_mut(&mut plugin).unwrap().shutdown();
         }
-        println!("finished shutting down app");
+        self.logger.log_raw("AFTER shutdown".to_owned());
     }
 }
 fn main() {
-    let app = Application::new();
+    let mut app = Application::new();
     app.run();
     app.shutdown();
 }
