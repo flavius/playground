@@ -22,6 +22,13 @@ impl Plugin {
         }
         logger.log_raw("AFTER casted shutdown".to_owned());
     }
+
+    fn as_logging(&self) -> Option<&Logging> {
+        match *self {
+            Plugin::Logging(ref plugin) => Some(&plugin),
+            _ => None,
+        }
+    }
 }
 
 struct Web {
@@ -122,6 +129,14 @@ impl PluginList {
     fn register(&mut self, plugin: Plugin) {
         self.0.push(Rc::new(plugin));
     }
+    fn logging(&self) -> Rc<&Logging> {
+        for plugin in self.all() {
+            if let Some(v) = plugin.as_logging() {
+                return Rc::new(v);
+            }
+        }
+        unreachable!()
+    }
 }
 
 struct Application {
@@ -130,14 +145,10 @@ struct Application {
 }
 
 impl Application {
-    fn new() -> Self {
-        let mut plugins = PluginList::new();
-        let logging = Logging::new();
+    fn new(plugins: PluginList) -> Self {
+        let logging: Rc<&Logging> = plugins.logging();
         let ctx = logging.new_context("application".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
-        let web = Web::new(&logging);
-        plugins.register(Plugin::Logging(logging));
-        plugins.register(Plugin::Web(web));
         Application {
             plugins,
             logger,
@@ -159,7 +170,12 @@ impl Application {
     }
 }
 fn main() {
-    let mut app = Application::new();
+    let logging = Logging::new();
+    let web = Web::new(&logging);
+    let mut plugins = PluginList::new();
+    plugins.register(Plugin::Logging(logging));
+    plugins.register(Plugin::Web(web));
+    let mut app = Application::new(plugins);
     app.run();
     app.shutdown();
 }
