@@ -46,7 +46,7 @@ impl Web {
     fn new(logging: &Logging) -> Self {
         let ctx = logging.new_context("web".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
-        Web {
+        Self {
             logger,
         }
     }
@@ -66,7 +66,7 @@ struct Logging {
 
 impl Logging {
     fn new() -> Self {
-        Logging {
+        Self {
         }
     }
 
@@ -110,7 +110,7 @@ impl LogWriter for InMemoryLogger {
 impl InMemoryLogger {
     fn new(context: LoggingContext) -> Self {
         let messages = vec![];
-        InMemoryLogger {
+        Self {
             messages,
             context,
         }
@@ -123,7 +123,7 @@ struct LoggingContext(String);
 
 impl PluginList {
     fn new() -> Self {
-        PluginList (
+        Self (
             vec![],
         )
     }
@@ -162,7 +162,7 @@ impl Application {
         let logging: Rc<&Logging> = plugins.logging();
         let ctx = logging.new_context("application".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
-        Application {
+        Self {
             plugins,
             logger,
         }
