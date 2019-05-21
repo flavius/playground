@@ -25,9 +25,16 @@ impl Plugin {
 }
 
 struct Web {
+    logger: LogWriter,
 }
 
 impl Web {
+    fn new(logging: &Logging) -> Self {
+        let mut logger = logging.new_logger("web".to_owned(), file!().to_string(), line!());
+        Web {
+            logger,
+        }
+    }
     fn run(&self) {
         println!("running web plugin");
     }
@@ -50,6 +57,20 @@ impl Logging {
     fn shutdown(&self) {
         println!("shutdown logging plugin");
     }
+
+    fn new_logger(&self, id: String, file: String, line: u32) -> LogWriter {
+        LogWriter {
+            id,
+            file,
+            line,
+        }
+    }
+}
+
+struct LogWriter {
+    id: String,
+    file: String,
+    line: u32,
 }
 
 struct PluginList(Vec<Rc<Plugin>>);
@@ -79,7 +100,9 @@ impl Application {
     fn new() -> Self {
         let mut plugins = PluginList::new();
         let logging = Logging::new();
+        let web = Web::new(&logging);
         plugins.register(Plugin::Logging(logging));
+        plugins.register(Plugin::Web(web));
         Application {
             plugins,
         }
