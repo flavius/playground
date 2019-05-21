@@ -6,21 +6,21 @@ enum Plugin {
 }
 
 impl Plugin {
-    fn run(&mut self) {
-        println!("running generic plugin");
+    fn run(&mut self, logger: &mut Box<dyn LogWriter>) {
+        logger.log_raw("BEFORE casted run".to_owned());
         match *self {
             Plugin::Web(ref mut plugin) => plugin.run(),
             Plugin::Logging(ref mut plugin) => plugin.run(),
         }
-        println!("finish running generic plugin");
+        logger.log_raw("AFTER casted run".to_owned());
     }
-    fn shutdown(&mut self) {
-        println!("shutdown generic plugin");
+    fn shutdown(&mut self, logger: &mut Box<dyn LogWriter>) {
+        logger.log_raw("BEFORE casted shutdown".to_owned());
         match *self {
             Plugin::Web(ref mut plugin) => plugin.shutdown(),
             Plugin::Logging(ref mut plugin) => plugin.shutdown(),
         }
-        println!("finish shutdown generic plugin");
+        logger.log_raw("AFTER casted shutdown".to_owned());
     }
 }
 
@@ -146,14 +146,14 @@ impl Application {
     fn run(&mut self) {
         self.logger.log_raw("BEFORE run".to_owned());
         for mut plugin in self.plugins.all_mut() {
-            Rc::<Plugin>::get_mut(&mut plugin).unwrap().run();
+            Rc::<Plugin>::get_mut(&mut plugin).unwrap().run(&mut self.logger);
         }
         self.logger.log_raw("AFTER run".to_owned());
     }
     fn shutdown(&mut self) {
         self.logger.log_raw("BEFORE shutdown".to_owned());
         for mut plugin in self.plugins.all_rev_mut() {
-            Rc::<Plugin>::get_mut(&mut plugin).unwrap().shutdown();
+            Rc::<Plugin>::get_mut(&mut plugin).unwrap().shutdown(&mut self.logger);
         }
         self.logger.log_raw("AFTER shutdown".to_owned());
     }
