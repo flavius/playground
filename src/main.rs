@@ -5,21 +5,20 @@ enum MyPlugin {
     Logging(Logging),
 }
 
+trait Plugin {
+    fn run(&mut self);
+    fn shutdown(&mut self);
+}
+
 impl MyPlugin {
     fn run(&mut self, logger: &mut Box<dyn LogWriter>) {
         logger.log_raw("BEFORE casted run".to_owned());
-        match *self {
-            MyPlugin::Web(ref mut plugin) => plugin.run(),
-            MyPlugin::Logging(ref mut plugin) => plugin.run(),
-        }
+        self.as_plugin().run();
         logger.log_raw("AFTER casted run".to_owned());
     }
     fn shutdown(&mut self, logger: &mut Box<dyn LogWriter>) {
         logger.log_raw("BEFORE casted shutdown".to_owned());
-        match *self {
-            MyPlugin::Web(ref mut plugin) => plugin.shutdown(),
-            MyPlugin::Logging(ref mut plugin) => plugin.shutdown(),
-        }
+        self.as_plugin().shutdown();
         logger.log_raw("AFTER casted shutdown".to_owned());
     }
 
@@ -27,6 +26,14 @@ impl MyPlugin {
         match *self {
             MyPlugin::Logging(ref plugin) => Some(&plugin),
             _ => None,
+        }
+    }
+    // match boilerplate is centralized here
+    // Avoidable and optimizable with crates such as "enum_dispatch"
+    fn as_plugin(&mut self) -> &mut dyn Plugin {
+        match self {
+            MyPlugin::Web(plugin) => plugin,
+            MyPlugin::Logging(plugin) => plugin,
         }
     }
 }
@@ -43,6 +50,9 @@ impl Web {
             logger,
         }
     }
+}
+
+impl Plugin for Web {
     fn run(&mut self) {
         self.logger.log_raw("run".to_owned());
     }
@@ -59,22 +69,25 @@ impl Logging {
         Logging {
         }
     }
-    fn run(&self) {
-        let ctx = self.new_context("logging".to_owned());
-        let mut logger = Box::new(self.new_logger(ctx));
-        logger.log_raw("run".to_owned());
-    }
-    fn shutdown(&self) {
-        let ctx = self.new_context("logging".to_owned());
-        let mut logger = Box::new(self.new_logger(ctx));
-        logger.log_raw("shutdown".to_owned());
-    }
 
     fn new_logger(&self, context: LoggingContext) -> impl LogWriter {
         InMemoryLogger::new(context)
     }
     fn new_context(&self, id: String) -> LoggingContext {
         LoggingContext(id)
+    }
+}
+
+impl Plugin for Logging {
+    fn run(&mut self) {
+        let ctx = self.new_context("logging".to_owned());
+        let mut logger = Box::new(self.new_logger(ctx));
+        logger.log_raw("run".to_owned());
+    }
+    fn shutdown(&mut self) {
+        let ctx = self.new_context("logging".to_owned());
+        let mut logger = Box::new(self.new_logger(ctx));
+        logger.log_raw("shutdown".to_owned());
     }
 }
 
