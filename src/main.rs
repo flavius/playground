@@ -1,31 +1,31 @@
 use std::rc::Rc;
 
-enum Plugin {
+enum MyPlugin {
     Web(Web),
     Logging(Logging),
 }
 
-impl Plugin {
+impl MyPlugin {
     fn run(&mut self, logger: &mut Box<dyn LogWriter>) {
         logger.log_raw("BEFORE casted run".to_owned());
         match *self {
-            Plugin::Web(ref mut plugin) => plugin.run(),
-            Plugin::Logging(ref mut plugin) => plugin.run(),
+            MyPlugin::Web(ref mut plugin) => plugin.run(),
+            MyPlugin::Logging(ref mut plugin) => plugin.run(),
         }
         logger.log_raw("AFTER casted run".to_owned());
     }
     fn shutdown(&mut self, logger: &mut Box<dyn LogWriter>) {
         logger.log_raw("BEFORE casted shutdown".to_owned());
         match *self {
-            Plugin::Web(ref mut plugin) => plugin.shutdown(),
-            Plugin::Logging(ref mut plugin) => plugin.shutdown(),
+            MyPlugin::Web(ref mut plugin) => plugin.shutdown(),
+            MyPlugin::Logging(ref mut plugin) => plugin.shutdown(),
         }
         logger.log_raw("AFTER casted shutdown".to_owned());
     }
 
     fn as_logging(&self) -> Option<&Logging> {
         match *self {
-            Plugin::Logging(ref plugin) => Some(&plugin),
+            MyPlugin::Logging(ref plugin) => Some(&plugin),
             _ => None,
         }
     }
@@ -104,7 +104,7 @@ impl InMemoryLogger {
     }
 }
 
-struct PluginList(Vec<Rc<Plugin>>);
+struct PluginList(Vec<Rc<MyPlugin>>);
 
 struct LoggingContext(String);
 
@@ -114,19 +114,19 @@ impl PluginList {
             vec![],
         )
     }
-    fn all(&self) -> impl Iterator<Item = &Rc<Plugin>> {
+    fn all(&self) -> impl Iterator<Item = &Rc<MyPlugin>> {
         self.0.iter()
     }
-    fn all_mut(&mut self) -> impl Iterator<Item = &mut Rc<Plugin>> {
+    fn all_mut(&mut self) -> impl Iterator<Item = &mut Rc<MyPlugin>> {
         self.0.iter_mut()
     }
-    fn all_rev(&self) -> impl DoubleEndedIterator<Item = &Rc<Plugin>> {
+    fn all_rev(&self) -> impl DoubleEndedIterator<Item = &Rc<MyPlugin>> {
         self.0.iter().rev()
     }
-    fn all_rev_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Rc<Plugin>> {
+    fn all_rev_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Rc<MyPlugin>> {
         self.0.iter_mut().rev()
     }
-    fn register(&mut self, plugin: Plugin) {
+    fn register(&mut self, plugin: MyPlugin) {
         self.0.push(Rc::new(plugin));
     }
     fn logging(&self) -> Rc<&Logging> {
@@ -157,14 +157,14 @@ impl Application {
     fn run(&mut self) {
         self.logger.log_raw("BEFORE run".to_owned());
         for mut plugin in self.plugins.all_mut() {
-            Rc::<Plugin>::get_mut(&mut plugin).unwrap().run(&mut self.logger);
+            Rc::<MyPlugin>::get_mut(&mut plugin).unwrap().run(&mut self.logger);
         }
         self.logger.log_raw("AFTER run".to_owned());
     }
     fn shutdown(&mut self) {
         self.logger.log_raw("BEFORE shutdown".to_owned());
         for mut plugin in self.plugins.all_rev_mut() {
-            Rc::<Plugin>::get_mut(&mut plugin).unwrap().shutdown(&mut self.logger);
+            Rc::<MyPlugin>::get_mut(&mut plugin).unwrap().shutdown(&mut self.logger);
         }
         self.logger.log_raw("AFTER shutdown".to_owned());
     }
@@ -173,8 +173,8 @@ fn main() {
     let logging = Logging::new();
     let web = Web::new(&logging);
     let mut plugins = PluginList::new();
-    plugins.register(Plugin::Logging(logging));
-    plugins.register(Plugin::Web(web));
+    plugins.register(MyPlugin::Logging(logging));
+    plugins.register(MyPlugin::Web(web));
     let mut app = Application::new(plugins);
     app.run();
     app.shutdown();
