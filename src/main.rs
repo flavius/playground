@@ -14,6 +14,14 @@ impl Plugin {
         }
         println!("finish running generic plugin");
     }
+    fn shutdown(&self) {
+        println!("shutdown generic plugin");
+        match *self {
+            Plugin::Web(ref plugin) => plugin.shutdown(),
+            Plugin::Logging(ref plugin) => plugin.shutdown(),
+        }
+        println!("finish shutdown generic plugin");
+    }
 }
 
 struct Web {
@@ -24,6 +32,7 @@ impl Web {
         println!("running web plugin");
     }
     fn shutdown(&self) {
+        println!("shutdown web plugin");
     }
 }
 
@@ -39,6 +48,7 @@ impl Logging {
         println!("running logging plugin");
     }
     fn shutdown(&self) {
+        println!("shutdown logging plugin");
     }
 }
 
@@ -52,6 +62,9 @@ impl PluginList {
     }
     fn all(&self) -> impl Iterator<Item = &Rc<Plugin>> {
         self.0.iter()
+    }
+    fn all_rev(&self) -> impl DoubleEndedIterator<Item = &Rc<Plugin>> {
+        self.0.iter().rev()
     }
     fn register(&mut self, plugin: Plugin) {
         self.0.push(Rc::new(plugin));
@@ -80,6 +93,10 @@ impl Application {
     }
     fn shutdown(&self) {
         println!("shutting down app");
+        for plugin in self.plugins.all_rev() {
+            plugin.shutdown();
+        }
+        println!("finished shutting down app");
     }
 }
 fn main() {
