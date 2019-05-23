@@ -164,6 +164,9 @@ impl PluginList {
         }
         None
     }
+    fn iter_rev_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut MyPlugin> {
+        self.0.iter_mut().rev()
+    }
 }
 
 impl Deref for PluginList {
@@ -209,7 +212,7 @@ impl Application {
     }
     fn shutdown(&mut self) {
         self.logger.log_raw("BEFORE shutdown".to_owned());
-        for plugin in &mut *self.plugins {
+        for plugin in self.plugins.iter_rev_mut() {
             plugin.shutdown(&mut self.logger);
         }
         self.logger.log_raw("AFTER shutdown".to_owned());
