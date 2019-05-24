@@ -1,18 +1,19 @@
 use std::any::{Any, TypeId};
-struct Logging {
+use crate::Plugin;
+
+pub struct Logging {
 }
 
 impl Logging {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
         }
     }
-
-    fn new_logger(&self, context: LoggingContext) -> impl LogWriter {
-        InMemoryLogger::new(context)
-    }
-    fn new_context(&self, id: String) -> LoggingContext {
+    pub fn new_context(&self, id: String) -> LoggingContext {
         LoggingContext(id)
+    }
+    pub fn new_logger(&self, context: LoggingContext) -> impl LogWriter {
+        InMemoryLogger::new(context)
     }
     //TODO: remove?
     fn as_any(&self) -> &dyn Any {
@@ -33,7 +34,7 @@ impl Plugin for Logging {
     }
 }
 
-trait LogWriter {
+pub trait LogWriter {
     fn log_raw(&mut self, msg: String);
 }
 
@@ -59,4 +60,4 @@ impl InMemoryLogger {
     }
 }
 
-struct LoggingContext(String);
+pub struct LoggingContext(String);

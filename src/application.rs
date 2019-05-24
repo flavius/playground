@@ -1,11 +1,14 @@
-struct Application {
-    plugins: PluginList,
-    logger: Box<dyn LogWriter>,
+use crate::plugin;
+
+pub struct Application {
+    plugins: plugin::PluginList,
+    logger: Box<dyn plugin::logging::LogWriter>,
 }
 
 impl Application {
-    fn new(mut plugins: PluginList) -> Option<Self> {
-        let logging: Option<&mut Logging> = plugins.get_plugin::<Logging>();
+    pub fn new(mut plugins: plugin::PluginList) -> Option<Self> {
+        //TODO: no expl type makes problems?
+        let logging: Option<&mut plugin::Logging> = plugins.get_plugin::<plugin::Logging>();
         if logging.is_none() {
             println!("no logging");
             return None;
@@ -18,14 +21,14 @@ impl Application {
             logger,
         })
     }
-    fn run(&mut self) {
+    pub fn run(&mut self) {
         self.logger.log_raw("BEFORE run".to_owned());
         for plugin in &mut *self.plugins {
             plugin.run(&mut self.logger);
         }
         self.logger.log_raw("AFTER run".to_owned());
     }
-    fn shutdown(&mut self) {
+    pub fn shutdown(&mut self) {
         self.logger.log_raw("BEFORE shutdown".to_owned());
         for plugin in self.plugins.iter_rev_mut() {
             plugin.shutdown(&mut self.logger);
