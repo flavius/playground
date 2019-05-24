@@ -76,14 +76,14 @@ impl<T: Plugin + 'static> AsAnyPlugin for T {
 
 impl MyPlugin {
     pub fn run(&mut self, logger: &mut Box<dyn logging::LogWriter>) {
-        logger.log_raw("BEFORE casted run".to_owned());
+        //logger.log_raw("BEFORE casted run".to_owned());
         self.as_plugin_mut().run();
-        logger.log_raw("AFTER casted run".to_owned());
+        //logger.log_raw("AFTER casted run".to_owned());
     }
     pub fn shutdown(&mut self, logger: &mut Box<dyn logging::LogWriter>) {
-        logger.log_raw("BEFORE casted shutdown".to_owned());
+        //logger.log_raw("BEFORE casted shutdown".to_owned());
         self.as_plugin_mut().shutdown();
-        logger.log_raw("AFTER casted shutdown".to_owned());
+        //logger.log_raw("AFTER casted shutdown".to_owned());
     }
 
     // match boilerplate is centralized here
