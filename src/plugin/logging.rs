@@ -1,4 +1,3 @@
-use std::any::{Any, TypeId};
 use crate::Plugin;
 
 pub struct Logging {
@@ -14,10 +13,6 @@ impl Logging {
     }
     pub fn new_logger(&self, context: LoggingContext) -> impl LogWriter {
         InMemoryLogger::new(context)
-    }
-    //TODO: remove?
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 

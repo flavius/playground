@@ -7,8 +7,7 @@ pub struct Application {
 
 impl Application {
     pub fn new(mut plugins: plugin::PluginList) -> Option<Self> {
-        //TODO: no expl type makes problems?
-        let logging: Option<&mut plugin::Logging> = plugins.get_plugin::<plugin::Logging>();
+        let logging = plugins.get_plugin::<plugin::Logging>();
         if logging.is_none() {
             println!("no logging");
             return None;

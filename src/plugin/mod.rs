@@ -15,15 +15,14 @@ impl PluginList {
             vec![],
         )
     }
-    pub fn register(&mut self, mut my_plugin: MyPlugin) {
-        let plugin_id = my_plugin.plugin_id();
+    pub fn register(&mut self, my_plugin: MyPlugin) {
         self.0.push(my_plugin);
     }
     pub fn get_plugin<'a, T: Plugin + 'static + 'a>(&'a mut self) -> Option<&'a mut T> {
         let type_id = TypeId::of::<T>();
         for my_plugin in self.0.iter_mut() {
             if my_plugin.plugin_id() == type_id {
-                let mut plugin = my_plugin.as_plugin_mut();
+                let plugin = my_plugin.as_plugin_mut();
                 return plugin.as_any_mut().downcast_mut::<T>();
             }
         }
@@ -99,8 +98,5 @@ impl MyPlugin {
         let plugin = self.as_plugin_mut();
         let any_plugin = plugin.as_any();
         any_plugin.type_id()
-    }
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
