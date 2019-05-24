@@ -3,9 +3,11 @@ use std::any::{Any, TypeId};
 
 pub mod logging;
 pub mod web;
+pub mod cli;
 
 pub use web::Web;
 pub use logging::Logging;
+pub use cli::Cli;
 
 pub struct PluginList(Vec<MyPlugin>);
 
@@ -50,6 +52,7 @@ impl DerefMut for PluginList {
 pub enum MyPlugin {
     Web(Web),
     Logging(Logging),
+    Cli(Cli),
 }
 
 pub trait Plugin : Any + AsAnyPlugin {
@@ -89,6 +92,7 @@ impl MyPlugin {
         match self {
             MyPlugin::Web(plugin) => plugin,
             MyPlugin::Logging(plugin) => plugin,
+            MyPlugin::Cli(plugin) => plugin,
         }
     }
     fn as_plugin(&mut self) -> &dyn Plugin {
