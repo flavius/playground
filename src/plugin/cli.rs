@@ -31,16 +31,19 @@ pub struct Cli {
     logger: Box<dyn logging::LogWriter>,
     args: Vec<String>,
     env: HashMap<String, String>,
+    original_args: Vec<String>,
 }
 
 impl Cli {
     pub fn new(mut args: Vec<String>, env: HashMap<String, String>, logging: &logging::Logging) -> Self {
         let ctx = logging.new_context("cli".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
+        let original_args = args.clone();
         Self {
             logger,
             args,
             env,
+            original_args,
         }
     }
 
@@ -52,8 +55,8 @@ impl Cli {
                 let nickname = self.args.remove(0);
                 command::Me::new(contact, nickname).as_command()
             },
-            Help => command::Help::new(false, self.args.clone()).as_command(),
-            ImplicitHelp => command::Help::new(true, self.args.clone()).as_command(),
+            Help => command::Help::new(false, self.original_args.clone()).as_command(),
+            ImplicitHelp => command::Help::new(true, self.original_args.clone()).as_command(),
         };
         command
     }
