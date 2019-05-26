@@ -4,10 +4,22 @@ use std::any::{Any, TypeId};
 pub mod logging;
 pub mod web;
 pub mod cli;
+pub mod projector;
+pub mod appendlog;
 
 pub use web::Web;
 pub use logging::Logging;
 pub use cli::Cli;
+pub use projector::Projector;
+pub use appendlog::Appendlog;
+
+pub enum MyPlugin {
+    Web(Web),
+    Logging(Logging),
+    Cli(Cli),
+    Projector(Projector),
+    Appendlog(Appendlog),
+}
 
 pub struct PluginList(Vec<MyPlugin>);
 
@@ -49,12 +61,6 @@ impl DerefMut for PluginList {
     }
 }
 
-pub enum MyPlugin {
-    Web(Web),
-    Logging(Logging),
-    Cli(Cli),
-}
-
 pub trait Plugin : Any + AsAnyPlugin {
     fn run(&mut self);
     fn shutdown(&mut self);
@@ -93,6 +99,8 @@ impl MyPlugin {
             MyPlugin::Web(plugin) => plugin,
             MyPlugin::Logging(plugin) => plugin,
             MyPlugin::Cli(plugin) => plugin,
+            MyPlugin::Projector(plugin) => plugin,
+            MyPlugin::Appendlog(plugin) => plugin,
         }
     }
     fn as_plugin(&mut self) -> &dyn Plugin {

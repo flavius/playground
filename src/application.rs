@@ -1,4 +1,7 @@
 use crate::plugin;
+use std::collections::HashMap;
+
+pub mod command;
 
 pub struct Application {
     plugins: plugin::PluginList,
@@ -36,3 +39,17 @@ impl Application {
     }
 }
 
+pub trait Command {
+    fn execute(&mut self);
+    fn id(&self);
+}
+
+//trait AsDynCommand {
+//    fn as_command(&self) -> &dyn Command;
+//}
+//
+//impl<T: Command + 'static> AsDynCommand for T {
+//    fn as_command(&self) -> &'static dyn Command {
+//        self
+//    }
+//}
