@@ -13,6 +13,7 @@ use super::super::application::AsCommand;
 enum CommandName {
     Me,
     Help,
+    ImplicitHelp,
 }
 
 impl From<&str> for CommandName {
@@ -21,7 +22,7 @@ impl From<&str> for CommandName {
         match value {
             "me" => Me,
             "help" => Help,
-            _ => Help,
+            _ => ImplicitHelp,
         }
     }
 }
@@ -51,7 +52,8 @@ impl Cli {
                 let nickname = self.args.remove(0);
                 command::Me::new(contact, nickname).as_command()
             },
-            Help => command::Help::new().as_command(),
+            Help => command::Help::new(false, self.args.clone()).as_command(),
+            ImplicitHelp => command::Help::new(true, self.args.clone()).as_command(),
         };
         command
     }
