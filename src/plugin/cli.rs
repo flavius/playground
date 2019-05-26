@@ -8,6 +8,7 @@ use std::rc::Rc;
 
 use super::super::application;
 use super::super::application::command;
+use super::super::application::AsCommand;
 
 enum CommandName {
     Me,
@@ -43,6 +44,7 @@ impl Cli {
     }
 
     fn get_command(&mut self, command_name: CommandName) -> Rc<dyn Command> {
+        use CommandName::*;
         let command = match command_name {
             Me => {
                 let contact = self.args.remove(0);

@@ -10,9 +10,6 @@ impl Help {
         Self {
         }
     }
-    pub fn as_command(self) -> Rc<dyn Command> {
-        Rc::new(self)
-    }
 }
 
 impl Command for Help {

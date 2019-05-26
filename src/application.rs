@@ -1,5 +1,6 @@
 use crate::plugin;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub mod command;
 
@@ -39,9 +40,19 @@ impl Application {
     }
 }
 
-pub trait Command {
+pub trait Command : AsCommand {
     fn execute(&mut self);
     fn id(&self);
+}
+
+pub trait AsCommand {
+    fn as_command(self) -> Rc<dyn Command>;
+}
+
+impl<T: Command + 'static> AsCommand for T {
+    fn as_command(self) -> Rc<dyn Command> {
+        Rc::new(self)
+    }
 }
 
 //trait AsDynCommand {
