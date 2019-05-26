@@ -42,11 +42,11 @@ impl Cli {
         }
     }
 
-    fn get_command(&self, command_name: CommandName) -> Rc<dyn Command> {
+    fn get_command(&mut self, command_name: CommandName) -> Rc<dyn Command> {
         let command = match command_name {
             Me => {
-                let contact = self.args[0].clone();
-                let nickname = self.args[1].clone();
+                let contact = self.args.remove(0);
+                let nickname = self.args.remove(0);
                 command::Me::new(contact, nickname).as_command()
             },
             Help => command::Help::new().as_command(),
