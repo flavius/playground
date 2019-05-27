@@ -1,3 +1,5 @@
+use uuid::Uuid;
+use std::fmt;
 use crate::plugin;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -40,13 +42,22 @@ impl Application {
     }
 }
 
-pub trait Command : AsCommand {
+pub trait Command : AsCommand + Identifiable {
     fn execute(&mut self);
-    fn id(&self);
 }
 
 pub trait AsCommand {
     fn as_command(self) -> Rc<dyn Command>;
+}
+
+pub trait Identifiable {
+    fn id(&self) -> Guid;
+}
+
+impl<T: Command + 'static> Identifiable for T {
+    fn id(&self) -> Guid {
+        Guid::new()
+    }
 }
 
 impl<T: Command + 'static> AsCommand for T {
@@ -55,12 +66,31 @@ impl<T: Command + 'static> AsCommand for T {
     }
 }
 
-//trait AsDynCommand {
-//    fn as_command(&self) -> &dyn Command;
-//}
-//
-//impl<T: Command + 'static> AsDynCommand for T {
-//    fn as_command(&self) -> &'static dyn Command {
-//        self
-//    }
-//}
+trait AggregateRoot {
+}
+
+// repository can only find and add aggregate roots
+trait Repository<T: AggregateRoot> {
+    fn find(&self, id: Guid) -> Rc<T>;
+    fn add(&mut self, aggregate: T);
+}
+
+trait CommandHandler<T> {
+    fn handle(&self, command: T);
+}
+
+struct Guid(uuid::Uuid);
+
+impl Guid {
+    pub fn new() -> Self {
+        Self {
+            0: uuid::Uuid::new_v4(),
+        }
+    }
+}
+
+impl fmt::Debug for Guid {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0.to_hyphenated())
+    }
+}

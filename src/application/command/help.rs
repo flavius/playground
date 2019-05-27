@@ -24,7 +24,5 @@ impl Command for Help {
             println!("regular help");
         }
     }
-    fn id(&self) {
-    }
 }
 

@@ -14,6 +14,7 @@ enum CommandName {
     Me,
     Help,
     ImplicitHelp,
+    NewTask,
 }
 
 impl From<&str> for CommandName {
@@ -22,6 +23,7 @@ impl From<&str> for CommandName {
         match value {
             "me" => Me,
             "help" => Help,
+            "new" => NewTask,
             _ => ImplicitHelp,
         }
     }
@@ -55,6 +57,10 @@ impl Cli {
                 let nickname = self.args.remove(0);
                 command::Me::new(contact, nickname).as_command()
             },
+            NewTask => {
+                let description = self.args.clone();
+                command::NewTask::new(description).as_command()
+            },
             Help => command::Help::new(false, self.original_args.clone()).as_command(),
             ImplicitHelp => command::Help::new(true, self.original_args.clone()).as_command(),
         };
@@ -67,7 +73,8 @@ impl Plugin for Cli {
         self.logger.log_raw("run".to_owned());
         let command_name : CommandName = CommandName::from(self.args.remove(0).as_str());
         let mut command : Rc<dyn Command> = self.get_command(command_name);
-        Rc::get_mut(&mut command).unwrap().execute();
+        let mut commandbus = command::CommandBus::new();
+        commandbus.executeCommand(command);
     }
     fn shutdown(&mut self) {
         self.logger.log_raw("shutdown".to_owned());

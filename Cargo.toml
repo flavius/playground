@@ -5,6 +5,7 @@ authors = ["Flavius Aspra <flavius.as@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+uuid = { version = "0.7", features = ["v4"] }
 
 [[bin]]
 name = "rust-ddd"
