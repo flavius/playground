@@ -17,12 +17,5 @@ impl Help {
 }
 
 impl Command for Help {
-    fn execute(&mut self) {
-        if self.indirect_call {
-            println!("helping for original args: {:?}", &self.original_args);
-        } else {
-            println!("regular help");
-        }
-    }
 }
 

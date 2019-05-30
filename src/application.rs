@@ -42,8 +42,7 @@ impl Application {
     }
 }
 
-pub trait Command : AsCommand + Identifiable {
-    fn execute(&mut self);
+pub trait Command : AsCommand {
 }
 
 pub trait AsCommand {
@@ -51,18 +50,26 @@ pub trait AsCommand {
 }
 
 pub trait Identifiable {
-    fn id(&self) -> Guid;
-}
-
-impl<T: Command + 'static> Identifiable for T {
-    fn id(&self) -> Guid {
-        Guid::new()
-    }
+    fn id(&self) -> &Guid;
 }
 
 impl<T: Command + 'static> AsCommand for T {
     fn as_command(self) -> Rc<dyn Command> {
         Rc::new(self)
+    }
+}
+
+pub struct IdentifiableCommand<T: Command> {
+    guid: Guid,
+    inner: T,
+}
+
+impl<T: Command + 'static> Command for IdentifiableCommand<T> {
+}
+
+impl<T: Command + 'static> Identifiable for IdentifiableCommand<T> {
+    fn id(&self) -> &Guid {
+        &self.guid
     }
 }
 
@@ -75,11 +82,12 @@ trait Repository<T: AggregateRoot> {
     fn add(&mut self, aggregate: T);
 }
 
-trait CommandHandler<T> {
-    fn handle(&self, command: T);
+pub trait CommandHandler {
+    type Command: Command;
+    fn handle(&self, command: Self::Command);
 }
 
-struct Guid(uuid::Uuid);
+pub struct Guid(uuid::Uuid);
 
 impl Guid {
     pub fn new() -> Self {
@@ -93,4 +101,19 @@ impl fmt::Debug for Guid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0.to_hyphenated())
     }
+}
+
+trait UnitOfWork {
+}
+
+struct AsyncUnitOfWork {
+}
+
+impl UnitOfWork for AsyncUnitOfWork {
+}
+
+struct SyncUnitOfWork {
+}
+
+impl UnitOfWork for SyncUnitOfWork {
 }

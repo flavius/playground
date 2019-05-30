@@ -1,2 +1,4 @@
 /target
 **/*.rs.bk
+/proc_macro/target
+/proc_macro/**/*.rs.bk

@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 uuid = { version = "0.7", features = ["v4"] }
+proc_macro = { path = "proc_macro" }
 
 [[bin]]
 name = "rust-ddd"

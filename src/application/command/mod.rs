@@ -1,7 +1,7 @@
+use std::rc::Rc;
+
 mod me;
 pub use me::Me;
-
-use std::rc::Rc;
 
 mod help;
 pub use help::Help;
@@ -23,7 +23,7 @@ impl CommandBus {
         //start unit of work (sync or async)
         //repositories registered with the UoW
         //trigger all handlers
-        Rc::get_mut(&mut command).unwrap().execute();
+        //let mut command = Rc::get_mut(&mut command).unwrap().execute();
         //when UoW is done, flush the repositories
     }
 }

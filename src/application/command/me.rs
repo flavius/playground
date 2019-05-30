@@ -17,7 +17,4 @@ impl Me {
 }
 
 impl Command for Me {
-    fn execute(&mut self) {
-        println!("executing ME for {} known as {}", &self.contact, &self.nickname);
-    }
 }
