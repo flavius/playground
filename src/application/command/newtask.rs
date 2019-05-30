@@ -7,7 +7,6 @@ extern crate proc_macro;
 
 use proc_macro::{command};
 
-#[command]
 pub struct NewTask {
     rawtaskdesc: Vec<String>,
 }
@@ -20,6 +19,4 @@ impl NewTask {
     }
 }
 
-impl Command for NewTask {
-}
-
+impl Command for NewTask {}

@@ -16,6 +16,4 @@ impl Help {
     }
 }
 
-impl Command for Help {
-}
-
+impl Command for Help {}

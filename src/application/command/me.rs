@@ -16,5 +16,4 @@ impl Me {
     }
 }
 
-impl Command for Me {
-}
+impl Command for Me {}
