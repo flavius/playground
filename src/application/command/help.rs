@@ -2,6 +2,10 @@ use crate::application::Command;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+extern crate proc_macro;
+use proc_macro::{command};
+
+#[command]
 pub struct Help {
     indirect_call: bool,
     original_args: Vec<String>,
@@ -16,4 +20,3 @@ impl Help {
     }
 }
 
-impl Command for Help {}

@@ -2,6 +2,10 @@ use crate::application::Command;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+extern crate proc_macro;
+use proc_macro::{command};
+
+#[command]
 pub struct Me {
     contact: String,
     nickname: String,
@@ -16,4 +20,3 @@ impl Me {
     }
 }
 
-impl Command for Me {}
