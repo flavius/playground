@@ -53,11 +53,11 @@ pub trait Identifiable {
     fn id(&self) -> &Guid;
 }
 
-//impl<T: Command + 'static> AsCommand for T {
-//    fn as_command(self) -> Rc<dyn Command> {
-//        Rc::new(self)
-//    }
-//}
+impl<T: Command + 'static> AsCommand for T {
+    fn as_command(self) -> Rc<dyn Command> {
+        Rc::new(self)
+    }
+}
 
 pub struct IdentifiableCommand<T: Command> {
     guid: Guid,
@@ -72,11 +72,11 @@ impl<T: Command + 'static> Identifiable for IdentifiableCommand<T> {
         &self.guid
     }
 }
-impl<T: Command + 'static> AsCommand for IdentifiableCommand<T> {
-    fn as_command(self) -> Rc<dyn Command> {
-        Rc::new(self.inner)
-    }
-}
+//impl<T: Command + 'static> AsCommand for IdentifiableCommand<T> {
+//    fn as_command(self) -> Rc<dyn Command> {
+//        Rc::new(self.inner)
+//    }
+//}
 
 trait AggregateRoot {
 }
