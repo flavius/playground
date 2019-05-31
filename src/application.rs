@@ -3,6 +3,7 @@ use std::fmt;
 use crate::plugin;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::any::Any;
 
 pub mod command;
 
@@ -42,11 +43,15 @@ impl Application {
     }
 }
 
-pub trait Command : AsCommand {
+pub trait Command : AsCommand + AsAny {
 }
 
 pub trait AsCommand {
     fn as_command(self) -> Rc<dyn Command>;
+}
+
+pub trait AsAny {
+    fn as_any(&self) -> &Any;
 }
 
 pub trait Identifiable {
@@ -56,6 +61,12 @@ pub trait Identifiable {
 impl<T: Command + 'static> AsCommand for T {
     fn as_command(self) -> Rc<dyn Command> {
         Rc::new(self)
+    }
+}
+
+impl<T: Command + 'static> AsAny for T {
+    fn as_any(&self) -> &Any {
+        self
     }
 }
 

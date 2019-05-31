@@ -1,6 +1,6 @@
 use super::logging;
 use crate::Plugin;
-use crate::application::Command;
+use crate::application::{Command, AsCommand, AsAny};
 
 use std::collections::HashMap;
 use std::convert::From;
@@ -8,7 +8,6 @@ use std::rc::Rc;
 
 use super::super::application;
 use super::super::application::command;
-use super::super::application::AsCommand;
 
 enum CommandName {
     Me,
