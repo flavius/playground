@@ -33,6 +33,7 @@ pub struct Cli {
     args: Vec<String>,
     env: HashMap<String, String>,
     original_args: Vec<String>,
+    command_bus: command::CommandBus,
 }
 
 impl Cli {
@@ -40,11 +41,13 @@ impl Cli {
         let ctx = logging.new_context("cli".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
         let original_args = args.clone();
+        let command_bus = command::CommandBus::new();
         Self {
             logger,
             args,
             env,
             original_args,
+            command_bus,
         }
     }
 
@@ -72,8 +75,7 @@ impl Plugin for Cli {
         self.logger.log_raw("run".to_owned());
         let command_name : CommandName = CommandName::from(self.args.remove(0).as_str());
         let mut command : Rc<dyn Command> = self.get_command(command_name);
-        let mut commandbus = command::CommandBus::new();
-        commandbus.executeCommand(command);
+        self.command_bus.executeCommand(command);
     }
     fn shutdown(&mut self) {
         self.logger.log_raw("shutdown".to_owned());
