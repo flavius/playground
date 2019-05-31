@@ -1,6 +1,5 @@
-use crate::application::Command;
+use crate::application::{Command, AsCommand};
 use std::collections::HashMap;
-use std::rc::Rc;
 
 extern crate proc_macro;
 use proc_macro::{command};

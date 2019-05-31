@@ -1,7 +1,4 @@
-use crate::application::Command;
-use crate::application::Guid;
-use std::rc::Rc;
-use crate::application::Identifiable;
+use crate::application::{Command, AsCommand};
 
 extern crate proc_macro;
 use proc_macro::{command};

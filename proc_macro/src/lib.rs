@@ -19,8 +19,12 @@ pub fn command(attribute: proc_macro::TokenStream, input: proc_macro::TokenStrea
     let input: TokenStream = input.into();
     let output = quote! {
         #input
-
         impl Command for #struct_name {
+        }
+        impl AsCommand for #struct_name {
+            fn as_command(self) -> std::rc::Rc<dyn Command> {
+                std::rc::Rc::new(self)
+            }
         }
     };
     output.into()

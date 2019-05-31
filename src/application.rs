@@ -53,11 +53,11 @@ pub trait Identifiable {
     fn id(&self) -> &Guid;
 }
 
-impl<T: Command + 'static> AsCommand for T {
-    fn as_command(self) -> Rc<dyn Command> {
-        Rc::new(self)
-    }
-}
+//impl<T: Command + 'static> AsCommand for T {
+//    fn as_command(self) -> Rc<dyn Command> {
+//        Rc::new(self)
+//    }
+//}
 
 pub struct IdentifiableCommand<T: Command> {
     guid: Guid,
@@ -72,13 +72,18 @@ impl<T: Command + 'static> Identifiable for IdentifiableCommand<T> {
         &self.guid
     }
 }
+impl<T: Command + 'static> AsCommand for IdentifiableCommand<T> {
+    fn as_command(self) -> Rc<dyn Command> {
+        Rc::new(self.inner)
+    }
+}
 
 trait AggregateRoot {
 }
 
 // repository can only find and add aggregate roots
 trait Repository<T: AggregateRoot> {
-    fn find(&self, id: Guid) -> Rc<T>;
+    fn find(&self, id: &Guid) -> Rc<T>;
     fn add(&mut self, aggregate: T);
 }
 
@@ -104,16 +109,26 @@ impl fmt::Debug for Guid {
 }
 
 trait UnitOfWork {
+    fn commit(&mut self);
+    fn rollback(&mut self);
 }
 
 struct AsyncUnitOfWork {
 }
 
 impl UnitOfWork for AsyncUnitOfWork {
+    fn commit(&mut self) {
+    }
+    fn rollback(&mut self) {
+    }
 }
 
 struct SyncUnitOfWork {
 }
 
 impl UnitOfWork for SyncUnitOfWork {
+    fn commit(&mut self) {
+    }
+    fn rollback(&mut self) {
+    }
 }
