@@ -1,4 +1,5 @@
-use crate::application::{Command, AsCommand};
+//use crate::application::{Command, AsCommand, Handler};
+use crate::application::{Command};
 
 extern crate proc_macro;
 use proc_macro::{command};
@@ -13,6 +14,10 @@ impl NewTask {
         Self {
             rawtaskdesc,
         }
+    }
+
+    pub fn as_string(&self) -> String {
+        self.rawtaskdesc.join(" ")
     }
 }
 

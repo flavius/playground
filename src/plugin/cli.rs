@@ -1,12 +1,11 @@
 use super::logging;
 use crate::Plugin;
-use crate::application::{Command, AsCommand, AsAny};
+use crate::application::{Command, AsCommand, AsAny, Handler};
 
 use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 
-use super::super::application;
 use super::super::application::command;
 
 enum CommandName {
@@ -34,6 +33,7 @@ pub struct Cli {
     env: HashMap<String, String>,
     original_args: Vec<String>,
     command_bus: command::CommandBus,
+    tasklist: Rc<command::Tasklist>,
 }
 
 impl Cli {
@@ -41,13 +41,17 @@ impl Cli {
         let ctx = logging.new_context("cli".to_owned());
         let logger = Box::new(logging.new_logger(ctx));
         let original_args = args.clone();
-        let command_bus = command::CommandBus::new();
+        let tasklist = Rc::new(command::Tasklist::new());
+        let mut command_bus = command::CommandBus::new();
+        command_bus.aggregateroot_handles::<command::NewTask>(&tasklist as &Rc<Handler<command::NewTask>>);
+        //command_bus.aggregateroot_handles::<command::NewTask>(&tasklist);
         Self {
             logger,
             args,
             env,
             original_args,
             command_bus,
+            tasklist,
         }
     }
 
@@ -66,6 +70,7 @@ impl Cli {
             Help => command::Help::new(false, self.original_args.clone()).as_command(),
             ImplicitHelp => command::Help::new(true, self.original_args.clone()).as_command(),
         };
+        println!("get cmd: {:?}", &command.as_any().type_id());
         command
     }
 }

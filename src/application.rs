@@ -1,7 +1,5 @@
-use uuid::Uuid;
 use std::fmt;
 use crate::plugin;
-use std::collections::HashMap;
 use std::rc::Rc;
 use std::any::Any;
 
@@ -64,8 +62,14 @@ impl<T: Command + 'static> AsCommand for T {
     }
 }
 
-impl<T: Command + 'static> AsAny for T {
-    fn as_any(&self) -> &Any {
+//impl<T: Command + 'static> AsAny for T {
+//    fn as_any(&self) -> &Any {
+//        self
+//    }
+//}
+
+impl<T: Any> AsAny for T {
+    fn as_any(&self) -> &dyn Any {
         self
     }
 }
@@ -89,7 +93,7 @@ impl<T: Command + 'static> Identifiable for IdentifiableCommand<T> {
 //    }
 //}
 
-trait AggregateRoot {
+trait AggregateRoot: AsAny {
 }
 
 // repository can only find and add aggregate roots
@@ -143,3 +147,19 @@ impl UnitOfWork for SyncUnitOfWork {
     fn rollback(&mut self) {
     }
 }
+
+trait Event {
+    fn message_id(&self) -> &Guid;
+    fn correlation_id(&self) -> &Guid;
+    fn causation_id(&self) -> &Guid;
+}
+
+pub trait Handler<T: Command + Sized> {
+    fn handle(&mut self, command: &T) -> Vec<Rc<dyn Event>>;
+}
+
+trait ApplyEvent<T: Event> {
+    fn apply(&mut self, event: &T, historical: bool);
+}
+
+//saga: listens to events and issues commands
