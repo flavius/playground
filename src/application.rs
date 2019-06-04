@@ -93,7 +93,7 @@ impl<T: Command + 'static> Identifiable for IdentifiableCommand<T> {
 //    }
 //}
 
-trait AggregateRoot: AsAny {
+pub trait AggregateRoot: AsAny {
 }
 
 // repository can only find and add aggregate roots
@@ -126,6 +126,7 @@ impl fmt::Debug for Guid {
 trait UnitOfWork {
     fn commit(&mut self);
     fn rollback(&mut self);
+    //TODO: fn to track agg root, record as new agg root, record agg root deletion
 }
 
 struct AsyncUnitOfWork {
@@ -154,7 +155,8 @@ trait Event {
     fn causation_id(&self) -> &Guid;
 }
 
-pub trait Handler<T: Command + Sized> {
+pub trait Handler<T: Command> {
+    //TODO: fn handle(&mut self, command: &T, uow: dyn UnitOfWork) -> Vec<Rc<dyn Event>>;
     fn handle(&mut self, command: &T) -> Vec<Rc<dyn Event>>;
 }
 

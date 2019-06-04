@@ -1,6 +1,6 @@
 use super::logging;
 use crate::Plugin;
-use crate::application::{Command, AsCommand, AsAny, Handler};
+use crate::application::{Command, AsCommand, AsAny, Handler, AggregateRoot};
 
 use std::collections::HashMap;
 use std::convert::From;
@@ -43,8 +43,7 @@ impl Cli {
         let original_args = args.clone();
         let tasklist = Rc::new(command::Tasklist::new());
         let mut command_bus = command::CommandBus::new();
-        command_bus.aggregateroot_handles::<command::NewTask>(&tasklist as &Rc<Handler<command::NewTask>>);
-        //command_bus.aggregateroot_handles::<command::NewTask>(&tasklist);
+        command_bus.aggregateroot_handles::<command::NewTask, _>(&tasklist);
         Self {
             logger,
             args,
@@ -79,7 +78,9 @@ impl Plugin for Cli {
     fn run(&mut self) {
         self.logger.log_raw("run".to_owned());
         let command_name : CommandName = CommandName::from(self.args.remove(0).as_str());
-        let mut command : Rc<dyn Command> = self.get_command(command_name);
+        //let mut command : Rc<dyn Command> = self.get_command(command_name);
+        let mut command = self.get_command(command_name);
+        //self.command_bus.executeCommand::<command::NewTask>(command);
         self.command_bus.executeCommand(command);
     }
     fn shutdown(&mut self) {
